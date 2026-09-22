@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 网页聊天室</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+    <div class="nav"><span>&#128172; 网页聊天室</span></div>
+    <div class="container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="logo">&#128172;</div>
+                <h3>欢迎回来</h3>
+                <p>登录你的账号，开始聊天</p>
+            </div>
+            <div class="login-body">
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" id="username" class="input-field" placeholder="请输入用户名">
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="password" class="input-field" placeholder="请输入密码">
+                </div>
+                <div class="form-tip hide" id="tip"></div>
+                <button id="submit" class="login-btn">登 录</button>
+            </div>
+            <div class="login-footer">还没有账号？<a href="register.html">立即注册</a></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        let submitButton = document.querySelector('#submit');
+        let usernameInput = document.querySelector('#username');
+        let passwordInput = document.querySelector('#password');
+        let tipBox = document.querySelector('#tip');
+
+        // 显示提示：type 为 'error' 或 'success'
+        function showTip(message, type) {
+            tipBox.innerHTML = message;
+            tipBox.className = 'form-tip ' + (type === 'success' ? 'tip-success' : 'tip-error');
+        }
+
+        function hideTip() {
+            tipBox.className = 'form-tip hide';
+        }
+
+        // 提交中禁用按钮，防止重复点击
+        function setLoading(loading) {
+            submitButton.disabled = loading;
+            submitButton.innerHTML = loading ? '登录中...' : '登 录';
+        }
+
+        usernameInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') submitButton.click();
+        });
+        passwordInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') submitButton.click();
+        });
+
+        submitButton.onclick = function() {
+            let username = usernameInput.value.trim();
+            let password = passwordInput.value;
+            hideTip();
+
+            if (!username) { showTip('请输入用户名！', 'error'); usernameInput.focus(); return; }
+            if (!password) { showTip('请输入密码！', 'error'); passwordInput.focus(); return; }
+
+            setLoading(true);
+            $.ajax({
+                method: 'post',
+                url: '/user/login',
+                contentType: 'application/json',
+                data: JSON.stringify({ username: username, password: password }),
+                success: function(data) {
+                    // 后端异常会返回 { code, message }
+                    if (data && data.code) {
+                        showTip(data.message || '登录失败！', 'error');
+                        setLoading(false);
+                        return;
+                    }
+                    if (data && data.userId > 0) {
+                        showTip('登录成功，正在跳转...', 'success');
+                        // token 存起来，后续接口鉴权要用
+                        localStorage.setItem('token', data.token);
+                        localStorage.setItem('userId', data.userId);
+                        localStorage.setItem('username', username);
+                        setTimeout(function() { location.assign('/client.html'); }, 600);
+                    } else {
+                        showTip('登录失败！', 'error');
+                        setLoading(false);
+                    }
+                },
+                error: function(xhr) {
+                    if (xhr.status === 400) {
+                        showTip('请求参数有误！', 'error');
+                    } else if (xhr.status === 404) {
+                        showTip('接口不存在，请检查后端服务！', 'error');
+                    } else if (xhr.status === 415) {
+                        showTip('请求格式错误，请检查 Content-Type！', 'error');
+                    } else {
+                        showTip('网络错误，请稍后重试！', 'error');
+                    }
+                    setLoading(false);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

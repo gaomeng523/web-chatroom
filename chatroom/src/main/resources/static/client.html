@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网页聊天室</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/client.css">
+</head>
+<body>
+    <div class="client-container">
+        <div class="bg-blur"></div>
+        <div class="main">
+            <!-- 左侧边栏 -->
+            <div class="left">
+                <div class="user-info">
+                    <div class="avatar" id="user-avatar"></div>
+                    <div class="username" id="user-name">加载中...</div>
+                </div>
+                <div class="search">
+                    <input type="text" id="search-input" placeholder="搜索用户...">
+                    <button id="search-btn" title="搜索">&#128269;</button>
+                </div>
+                <div class="tab">
+                    <div class="tab-session active" id="tab-session">
+                        <span class="tab-icon">&#128172;</span>
+                        <span>会话</span>
+                    </div>
+                    <div class="tab-friend" id="tab-friend">
+                        <span class="tab-icon">&#128101;</span>
+                        <span>好友</span>
+                    </div>
+                </div>
+                <ul class="list" id="session-list"></ul>
+                <ul class="list hide" id="friend-list"></ul>
+            </div>
+            <!-- 右侧聊天区域 -->
+            <div class="right">
+                <div class="title">
+                    <span class="chat-title-name" id="chat-title">选择一个会话开始聊天</span>
+                    <span class="chat-status" id="chat-status"></span>
+                </div>
+                <div class="message-show" id="message-show">
+                    <div class="empty-state" id="empty-state">
+                        <div class="empty-icon">&#128172;</div>
+                        <p>选择左侧的会话或好友，开始聊天吧</p>
+                    </div>
+                </div>
+                <div class="message-input">
+                    <textarea id="message-textarea" placeholder="输入消息... (Enter 发送)"></textarea>
+                </div>
+                <div class="ctrl">
+                    <span class="hint">Enter 发送，Shift+Enter 换行</span>
+                    <button id="send-btn">发 送</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="js/client.js"></script>
+</body>
+</html>

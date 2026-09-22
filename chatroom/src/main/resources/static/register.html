@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 - 网页聊天室</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/register.css">
+</head>
+<body>
+    <div class="nav"><span>&#128172; 网页聊天室</span></div>
+    <div class="container">
+        <div class="register-card">
+            <div class="register-header">
+                <div class="logo">&#9997;</div>
+                <h3>创建账号</h3>
+                <p>注册一个新账号，加入聊天室</p>
+            </div>
+            <div class="register-body">
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" id="username" class="input-field" placeholder="请输入用户名（最多20位）">
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="password" class="input-field" placeholder="请输入密码（6~20位）">
+                </div>
+                <div class="form-group">
+                    <label>确认密码</label>
+                    <input type="password" id="confirmPassword" class="input-field" placeholder="请再次输入密码">
+                </div>
+                <div class="form-tip hide" id="tip"></div>
+                <button id="submit" class="register-btn">注 册</button>
+            </div>
+            <div class="register-footer">已有账号？<a href="login.html">去登录</a></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        let submitButton = document.querySelector('#submit');
+        let usernameInput = document.querySelector('#username');
+        let passwordInput = document.querySelector('#password');
+        let confirmInput = document.querySelector('#confirmPassword');
+        let tipBox = document.querySelector('#tip');
+
+        // 与后端 UserRegisterRequest 的校验规则保持一致
+        const USERNAME_MAX = 20;
+        const PASSWORD_MIN = 6;
+        const PASSWORD_MAX = 20;
+
+        function showTip(message, type) {
+            tipBox.innerHTML = message;
+            tipBox.className = 'form-tip ' + (type === 'success' ? 'tip-success' : 'tip-error');
+        }
+
+        function hideTip() {
+            tipBox.className = 'form-tip hide';
+        }
+
+        function setLoading(loading) {
+            submitButton.disabled = loading;
+            submitButton.innerHTML = loading ? '注册中...' : '注 册';
+        }
+
+        // 前端先校验一遍，规则和后端 @NotBlank / @Size 对齐
+        function validate(username, password, confirmPassword) {
+            if (!username) return '请输入用户名！';
+            if (username.length > USERNAME_MAX) return '用户名长度不能超过' + USERNAME_MAX + '位！';
+            if (!password) return '请输入密码！';
+            if (password.length < PASSWORD_MIN || password.length > PASSWORD_MAX) {
+                return '密码长度需在' + PASSWORD_MIN + '~' + PASSWORD_MAX + '位之间！';
+            }
+            if (password !== confirmPassword) return '两次输入的密码不一致！';
+            return null;
+        }
+
+        [usernameInput, passwordInput, confirmInput].forEach(function(input) {
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') submitButton.click();
+            });
+        });
+
+        submitButton.onclick = function() {
+            let username = usernameInput.value.trim();
+            let password = passwordInput.value;
+            let confirmPassword = confirmInput.value;
+            hideTip();
+
+            let error = validate(username, password, confirmPassword);
+            if (error) { showTip(error, 'error'); return; }
+
+            setLoading(true);
+            $.ajax({
+                method: 'post',
+                url: '/user/register',
+                contentType: 'application/json',
+                data: JSON.stringify({ username: username, password: password }),
+                success: function(data) {
+                    // 后端异常会返回 { code, message }，例如"用户名已存在"
+                    if (data && data.code) {
+                        showTip(data.message || '注册失败！', 'error');
+                        setLoading(false);
+                        return;
+                    }
+                    if (data && data.username) {
+                        showTip('注册成功，正在跳转到登录页...', 'success');
+                        setTimeout(function() { location.assign('/login.html'); }, 800);
+                    } else {
+                        showTip('注册失败！', 'error');
+                        setLoading(false);
+                    }
+                },
+                error: function(xhr) {
+                    if (xhr.status === 400) {
+                        showTip('请求参数有误！', 'error');
+                    } else if (xhr.status === 404) {
+                        showTip('接口不存在，请检查后端服务！', 'error');
+                    } else if (xhr.status === 415) {
+                        showTip('请求格式错误，请检查 Content-Type！', 'error');
+                    } else {
+                        showTip('网络错误，请稍后重试！', 'error');
+                    }
+                    setLoading(false);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

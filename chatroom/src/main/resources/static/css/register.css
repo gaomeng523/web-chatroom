@@ -1,0 +1,125 @@
+/* 注册页样式 */
+.register-container {
+    width: 100%;
+    height: calc(100% - 56px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.register-card {
+    width: 420px;
+    background: var(--bg-white);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    overflow: hidden;
+    animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.register-header {
+    padding: 40px 40px 20px;
+    text-align: center;
+}
+
+.register-header .logo {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, var(--info) 0%, #0984e3 100%);
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 28px;
+    color: white;
+    box-shadow: 0 8px 25px rgba(16, 174, 255, 0.3);
+}
+
+.register-header h3 { font-size: 24px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+.register-header p { font-size: 14px; color: var(--text-secondary); }
+
+.register-body { padding: 20px 40px 40px; }
+
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-bottom: 8px; }
+
+.form-group .input-field {
+    width: 100%;
+    height: 50px;
+    font-size: 15px;
+    padding: 0 16px;
+    background: var(--bg-input);
+    border: 2px solid transparent;
+    border-radius: var(--radius-md);
+    transition: var(--transition);
+}
+
+.form-group .input-field:focus {
+    background: var(--bg-white);
+    border-color: var(--info);
+    box-shadow: 0 0 0 3px rgba(16, 174, 255, 0.1);
+}
+
+.register-btn {
+    width: 100%;
+    height: 50px;
+    background: linear-gradient(135deg, var(--info) 0%, #0984e3 100%);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 4px 15px rgba(16, 174, 255, 0.3);
+    margin-top: 10px;
+}
+
+.register-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(16, 174, 255, 0.4); }
+.register-btn:active { transform: translateY(0); }
+
+.register-btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 4px 15px rgba(16, 174, 255, 0.2);
+}
+
+/* 提示条：错误 / 成功 */
+.form-tip {
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    line-height: 1.5;
+    animation: tipIn 0.25s ease;
+}
+
+@keyframes tipIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.tip-error {
+    background: #fef0f0;
+    border: 1px solid #fde2e2;
+    color: var(--danger);
+}
+
+.tip-success {
+    background: #e8f5ff;
+    border: 1px solid #d1ebff;
+    color: #0984e3;
+}
+
+.register-footer { text-align: center; padding: 0 40px 30px; font-size: 14px; color: var(--text-secondary); }
+.register-footer a { color: var(--info); font-weight: 500; }
+.register-footer a:hover { text-decoration: underline; }

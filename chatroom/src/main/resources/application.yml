@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/java_chatroom?characterEncoding=utf8&useSSL=false
+    username: root
+    password: 118523
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  web:
+    resources:
+      cache:
+        cachecontrol:
+          no-cache: true
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+jwt:
+  secret: "+JEq/o2bYDEtaECkxKCeAt0i3yA0IPUlV2rxFVGS+v4="
+logging:
+  file:
+    name: spring-blog.log
