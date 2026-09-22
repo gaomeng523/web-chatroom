@@ -1,6 +1,7 @@
 package com.example.chatroom.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.example.chatroom.common.constant.Constant;
 import com.example.chatroom.common.exception.UserException;
 import com.example.chatroom.common.utils.JwtUtil;
 import com.example.chatroom.common.utils.Md5Util;
@@ -39,8 +40,8 @@ public class UserServiceImpl implements UserService {
         }
 
         Map<String, Object> map = new HashMap<>();
-        map.put("userId", user.getUserId());
-        map.put("username", user.getUserName());
+        map.put(Constant.JWT_CLAIM_ID, user.getUserId());
+        map.put(Constant.JWT_CLAIM_NAME, user.getUserName());
         String token = jwtUtil.genJwt(map);
 
         log.info("登录成功: userId:{}", user.getUserId());

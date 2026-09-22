@@ -2,6 +2,22 @@
  * 网页聊天室 - 客户端主逻辑
  */
 
+// 所有 ajax 请求统一携带登录 token（头名需与后端 Constant.USER_TOKEN_HEADER 一致）
+$.ajaxSetup({
+    headers: { 'User-Token': localStorage.getItem('token') || '' }
+});
+
+// token 失效时统一回登录页，省得每个接口各写一遍
+$(document).ajaxError(function(event, xhr) {
+    if (xhr.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('username');
+        alert('登录已过期，请重新登录！');
+        location.assign('/login.html');
+    }
+});
+
 let websocket = null;
 let selfUserId = 0;
 let selfUsername = '';
@@ -56,7 +72,11 @@ function getUserInfo() {
                 location.assign('/login.html');
             }
         },
-        error: function() { alert("获取用户信息失败！"); location.assign('/login.html'); }
+        // 401 已由上面的全局 ajaxError 处理（弹提示 + 跳登录页），这里只管跳转
+        error: function(xhr) {
+            if (xhr.status !== 401) { alert("获取用户信息失败！"); }
+            location.assign('/login.html');
+        }
     });
 }
 

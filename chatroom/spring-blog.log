@@ -565,3 +565,64 @@ org.springframework.web.servlet.resource.NoResourceFoundException: No static res
 2026-09-22T22:15:10.370+08:00  INFO 38844 --- [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
 2026-09-22T22:15:10.373+08:00  INFO 38844 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
 2026-09-22T22:15:10.377+08:00  INFO 38844 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-09-22T23:07:56.204+08:00  INFO 36404 --- [main] c.example.chatroom.ChatroomApplication   : Starting ChatroomApplication using Java 17.0.9 with PID 36404 (E:\JavaEE-learn\web-chatroom\chatroom\target\classes started by a in E:\JavaEE-learn\web-chatroom\chatroom)
+2026-09-22T23:07:56.207+08:00  INFO 36404 --- [main] c.example.chatroom.ChatroomApplication   : No active profile set, falling back to 1 default profile: "default"
+2026-09-22T23:07:56.801+08:00  INFO 36404 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 50533 (http)
+2026-09-22T23:07:56.809+08:00  INFO 36404 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-22T23:07:56.809+08:00  INFO 36404 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.48]
+2026-09-22T23:07:56.848+08:00  INFO 36404 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-09-22T23:07:56.848+08:00  INFO 36404 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 618 ms
+2026-09-22T23:07:56.973+08:00  WARN 36404 --- [main] c.b.m.core.injector.DefaultSqlInjector   : class com.example.chatroom.pojo.dataobject.User ,Not found @TableId annotation, Cannot use Mybatis-Plus 'xxById' Method.
+2026-09-22T23:07:57.159+08:00  WARN 36404 --- [main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+2026-09-22T23:07:57.167+08:00  INFO 36404 --- [main] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-09-22T23:07:57.180+08:00 ERROR 36404 --- [main] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 50533 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 50533 or configure this application to listen on another port.
+
+2026-09-22T23:08:45.422+08:00  INFO 40200 --- [main] c.example.chatroom.ChatroomApplication   : Starting ChatroomApplication using Java 17.0.9 with PID 40200 (E:\JavaEE-learn\web-chatroom\chatroom\target\classes started by a in E:\JavaEE-learn\web-chatroom\chatroom)
+2026-09-22T23:08:45.424+08:00  INFO 40200 --- [main] c.example.chatroom.ChatroomApplication   : No active profile set, falling back to 1 default profile: "default"
+2026-09-22T23:08:46.010+08:00  INFO 40200 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 18080 (http)
+2026-09-22T23:08:46.018+08:00  INFO 40200 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-22T23:08:46.019+08:00  INFO 40200 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.48]
+2026-09-22T23:08:46.055+08:00  INFO 40200 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-09-22T23:08:46.055+08:00  INFO 40200 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 606 ms
+2026-09-22T23:08:46.392+08:00  INFO 40200 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 18080 (http) with context path '/'
+2026-09-22T23:08:46.397+08:00  INFO 40200 --- [main] c.example.chatroom.ChatroomApplication   : Started ChatroomApplication in 1.255 seconds (process running for 1.437)
+2026-09-22T23:09:36.275+08:00  INFO 40200 --- [http-nio-18080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-22T23:09:36.276+08:00  INFO 40200 --- [http-nio-18080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-22T23:09:36.276+08:00  INFO 40200 --- [http-nio-18080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2026-09-22T23:09:36.286+08:00  INFO 40200 --- [http-nio-18080-exec-1] c.e.c.common.interceptor.LogInterceptor  : [拦截链路] GET /friendList 已进入拦截器
+2026-09-22T23:09:36.287+08:00  WARN 40200 --- [http-nio-18080-exec-1] c.e.c.c.interceptor.LoginInterceptor     : 请求被拦截：未携带 token, uri = /friendList
+2026-09-22T23:09:36.317+08:00  INFO 40200 --- [http-nio-18080-exec-2] c.e.c.common.interceptor.LogInterceptor  : [拦截链路] GET /friendList 已进入拦截器
+2026-09-22T23:09:36.317+08:00  WARN 40200 --- [http-nio-18080-exec-2] c.e.c.c.interceptor.LoginInterceptor     : 请求被拦截：未携带 token, uri = /friendList
+2026-09-22T23:09:36.319+08:00  INFO 40200 --- [http-nio-18080-exec-3] c.e.c.common.interceptor.LogInterceptor  : [拦截链路] GET /client.html 已进入拦截器
+2026-09-22T23:09:36.351+08:00  INFO 40200 --- [http-nio-18080-exec-4] c.e.c.common.interceptor.LogInterceptor  : [拦截链路] GET /login.html 已进入拦截器
+2026-09-22T23:09:36.382+08:00  INFO 40200 --- [http-nio-18080-exec-5] c.e.c.common.interceptor.LogInterceptor  : [拦截链路] POST /user/login 已进入拦截器
+2026-09-22T23:09:36.443+08:00  INFO 40200 --- [http-nio-18080-exec-5] c.e.chatroom.controller.UserController   : 用户登录：username = nobody_xyz
+2026-09-22T23:09:36.490+08:00  INFO 40200 --- [http-nio-18080-exec-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-09-22T23:09:36.575+08:00  INFO 40200 --- [http-nio-18080-exec-5] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@7aec07ef
+2026-09-22T23:09:36.576+08:00  INFO 40200 --- [http-nio-18080-exec-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-09-22T23:09:36.609+08:00  WARN 40200 --- [http-nio-18080-exec-5] c.e.c.c.e.GlobalExceptionHandler         : 业务异常：用户名或密码错误
+2026-09-22T23:10:05.286+08:00  INFO 40200 --- [http-nio-18080-exec-7] c.e.c.common.interceptor.LogInterceptor  : [拦截链路] GET /friendList 已进入拦截器
+2026-09-22T23:10:05.286+08:00  WARN 40200 --- [http-nio-18080-exec-7] c.e.c.c.interceptor.LoginInterceptor     : 请求被拦截：未携带 token, uri = /friendList
+2026-09-22T23:10:05.309+08:00  INFO 40200 --- [http-nio-18080-exec-8] c.e.c.common.interceptor.LogInterceptor  : [拦截链路] GET /friendList 已进入拦截器
+2026-09-22T23:10:05.321+08:00  WARN 40200 --- [http-nio-18080-exec-8] c.example.chatroom.common.utils.JwtUtil  : token 解析失败：JWT strings must contain exactly 2 period characters. Found: 3
+2026-09-22T23:10:05.321+08:00  WARN 40200 --- [http-nio-18080-exec-8] c.e.c.c.interceptor.LoginInterceptor     : 请求被拦截：token 无效或已过期, uri = /friendList
+2026-09-22T23:10:05.323+08:00  INFO 40200 --- [http-nio-18080-exec-9] c.e.c.common.interceptor.LogInterceptor  : [拦截链路] GET /friendList 已进入拦截器
+2026-09-22T23:10:05.336+08:00  INFO 40200 --- [http-nio-18080-exec-9] c.e.c.c.interceptor.LoginInterceptor     : 登录校验通过，userId:4, uri:/friendList, method:GET
+2026-09-22T23:10:05.338+08:00  WARN 40200 --- [http-nio-18080-exec-9] c.e.c.c.e.GlobalExceptionHandler         : 资源不存在：friendList
+2026-09-22T23:10:05.340+08:00  INFO 40200 --- [http-nio-18080-exec-10] c.e.c.common.interceptor.LogInterceptor  : [拦截链路] GET /userInfo 已进入拦截器
+2026-09-22T23:10:05.341+08:00  INFO 40200 --- [http-nio-18080-exec-10] c.e.c.c.interceptor.LoginInterceptor     : 登录校验通过，userId:4, uri:/userInfo, method:GET
+2026-09-22T23:10:05.343+08:00  WARN 40200 --- [http-nio-18080-exec-10] c.e.c.c.e.GlobalExceptionHandler         : 资源不存在：userInfo
