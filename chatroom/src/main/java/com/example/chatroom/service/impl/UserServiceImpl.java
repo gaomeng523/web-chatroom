@@ -3,12 +3,14 @@ package com.example.chatroom.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.example.chatroom.common.constant.Constant;
 import com.example.chatroom.common.exception.UserException;
+import com.example.chatroom.common.utils.BeanTransfer;
 import com.example.chatroom.common.utils.JwtUtil;
 import com.example.chatroom.common.utils.Md5Util;
 import com.example.chatroom.mapper.UserMapper;
 import com.example.chatroom.pojo.dataobject.User;
 import com.example.chatroom.pojo.request.UserLoginRequest;
 import com.example.chatroom.pojo.request.UserRegisterRequest;
+import com.example.chatroom.pojo.response.UserInfoResponse;
 import com.example.chatroom.pojo.response.UserLoginResponse;
 import com.example.chatroom.pojo.response.UserRegisterResponse;
 import com.example.chatroom.service.UserService;
@@ -70,6 +72,16 @@ public class UserServiceImpl implements UserService {
         // insert 后 MyBatis-Plus 会把自增主键回填到 userInfo.userId
         log.info("注册成功: userId:{}, username:{}", user.getUserId(), username);
         return new UserRegisterResponse(user.getUserId(), username);
+    }
+
+    @Override
+    public UserInfoResponse getUserInfo(Integer userId) {
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            // 用户被删了、或 token 里的 id 已经失效
+            throw new UserException("用户不存在");
+        }
+        return BeanTransfer.toUserInfoResponse(user);
     }
 
     private User getUserByname(String userName) {

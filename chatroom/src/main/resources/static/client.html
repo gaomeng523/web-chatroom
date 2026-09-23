@@ -32,7 +32,17 @@
                     </div>
                 </div>
                 <ul class="list" id="session-list"></ul>
-                <ul class="list hide" id="friend-list"></ul>
+                <!-- 好友面板：上方是待处理的好友请求，下方是好友列表 -->
+                <div class="friend-panel hide" id="friend-panel">
+                    <div class="request-section hide" id="request-section">
+                        <div class="section-title">
+                            <span>新的朋友</span>
+                            <span class="request-count" id="request-count">0</span>
+                        </div>
+                        <ul class="request-list" id="request-list"></ul>
+                    </div>
+                    <ul class="list" id="friend-list"></ul>
+                </div>
             </div>
             <!-- 右侧聊天区域 -->
             <div class="right">

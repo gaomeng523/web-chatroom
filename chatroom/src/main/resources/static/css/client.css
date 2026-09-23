@@ -151,17 +151,98 @@
 #friend-list > li { padding: 12px 20px; }
 #friend-list > li h4 { font-size: 15px; font-weight: 500; color: var(--text-white); }
 
-#session-list > li .friend-request-actions { display: flex; gap: 8px; margin-top: 8px; }
+/* === 会话未读红点 === */
+.main > .left > .list > li .unread-badge {
+    flex-shrink: 0;
+    min-width: 18px; height: 18px;
+    padding: 0 5px; margin-left: 8px;
+    border-radius: 9px;
+    background: var(--danger); color: var(--text-white);
+    font-size: 11px; font-weight: 500;
+    line-height: 18px; text-align: center;
+}
 
-#session-list > li .friend-request-actions button {
+/* === 好友面板（好友 tab 下的内容区）=== */
+.main > .left > .friend-panel {
+    flex: 1; display: flex; flex-direction: column;
+    overflow: hidden;
+}
+
+/* 待处理的好友请求区 */
+.main > .left > .friend-panel > .request-section {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex; flex-direction: column;
+    max-height: 45%;
+}
+
+.main > .left > .friend-panel > .request-section > .section-title {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 20px 8px;
+    font-size: 12px; font-weight: 500;
+    color: var(--text-sidebar);
+    letter-spacing: 0.5px;
+}
+
+.main > .left > .friend-panel > .request-section > .section-title > .request-count {
+    min-width: 18px; height: 18px; padding: 0 6px;
+    background: var(--danger); color: white;
+    border-radius: 9px; font-size: 11px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+}
+
+.main > .left > .friend-panel > .request-section > .request-list {
+    flex: 1; overflow-y: auto; overflow-x: hidden;
+}
+
+.main > .left > .friend-panel > .request-section > .request-list > li {
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.main > .left > .friend-panel > .request-section > .request-list > li .req-top {
+    display: flex; align-items: center;
+}
+
+.main > .left > .friend-panel > .request-section > .request-list > li .req-top .item-avatar {
+    width: 36px; height: 36px; border-radius: var(--radius-full);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 14px; font-weight: 600;
+    margin-right: 10px; flex-shrink: 0;
+}
+
+.main > .left > .friend-panel > .request-section > .request-list > li .req-info {
+    flex: 1; min-width: 0;
+}
+
+.main > .left > .friend-panel > .request-section > .request-list > li .req-info h3 {
+    font-size: 14px; font-weight: 500; color: var(--text-white);
+    margin-bottom: 2px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.main > .left > .friend-panel > .request-section > .request-list > li .req-info p {
+    font-size: 12px; color: var(--text-sidebar);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.friend-request-actions { display: flex; gap: 8px; margin-top: 10px; padding-left: 46px; }
+
+.friend-request-actions button {
     padding: 4px 14px; border-radius: var(--radius-sm);
     font-size: 12px; font-weight: 500; transition: var(--transition);
 }
 
-#session-list > li .friend-request-actions .btn-accept { background: var(--primary); color: white; }
-#session-list > li .friend-request-actions .btn-accept:hover { background: var(--primary-dark); }
-#session-list > li .friend-request-actions .btn-reject { background: rgba(255, 255, 255, 0.1); color: var(--text-sidebar); }
-#session-list > li .friend-request-actions .btn-reject:hover { background: rgba(250, 81, 81, 0.2); color: var(--danger); }
+.friend-request-actions .btn-accept { background: var(--primary); color: white; }
+.friend-request-actions .btn-accept:hover { background: var(--primary-dark); }
+.friend-request-actions .btn-reject { background: rgba(255, 255, 255, 0.1); color: var(--text-sidebar); }
+.friend-request-actions .btn-reject:hover { background: rgba(250, 81, 81, 0.2); color: var(--danger); }
+
+/* 好友列表为空时的提示 */
+.list-tip {
+    padding: 24px 20px; text-align: center;
+    font-size: 12px; color: var(--text-placeholder);
+    line-height: 1.8;
+}
 
 /* === 右侧聊天区域 === */
 .main > .right {

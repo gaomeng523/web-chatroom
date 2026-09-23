@@ -42,7 +42,10 @@ public class WebConfig implements WebMvcConfigurer {
                         "/favicon.ico",
                         // 关键：Controller 抛异常后 SpringBoot 会 forward 到 /error，
                         // 不排除的话这次内部转发会被再拦一次，401 会盖掉真正的错误
-                        "/error"
+                        "/error",
+                        // WebSocket 握手：它拿不到 User-Token 请求头，鉴权交给 AuthHandshakeInterceptor
+                        // （token 挂在 URL query 上）。这里必须放行，否则会被当成普通请求判 401。
+                        "/ws/**"
                 );
     }
 }
