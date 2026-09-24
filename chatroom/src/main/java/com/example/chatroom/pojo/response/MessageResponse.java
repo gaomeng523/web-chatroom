@@ -35,4 +35,17 @@ public class MessageResponse {
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime postTime;
+
+    /**
+     * 是否已撤回（0 正常 / 1 已撤回）。
+     * 已撤回的消息后端会把 content 置成 null —— 原文留在库里做审计，
+     * 但不该再发给客户端，前端只负责渲染成"XX 撤回了一条消息"。
+     */
+    private Integer revoked;
+
+    /**
+     * 消息类型：1 文本 / 2 图片（取值见 Constant.MSG_TYPE_*）。
+     * type=2 时 content 里放的是图片路径，前端要渲染成 &lt;img&gt; 而不是文本。
+     */
+    private Integer type;
 }

@@ -10,7 +10,8 @@ import java.time.LocalDateTime;
 
 /**
  * 对应 message_session 表。
- * 这张表只存"会话本身"和它的活跃时间，谁是成员在 message_session_user 里。
+ * 单聊和群聊共用这张表，靠 type 区分；谁是成员在 message_session_user 里
+ * （单聊 2 行、群聊 N 行，所以成员表天然就支持群聊）。
  */
 @Data
 @TableName("message_session")
@@ -18,6 +19,12 @@ public class MessageSession {
 
     @TableId(type = IdType.AUTO)
     private Integer sessionId;
+
+    /** 1 单聊 / 2 群聊，取值见 Constant.SESSION_TYPE_* */
+    private Integer type;
+
+    /** 群名称。单聊为 NULL —— 单聊的标题是"对方的昵称"，那是查出来的，不是存出来的 */
+    private String name;
 
     /**
      * 最后一条消息的时间，会话列表按它倒序排。

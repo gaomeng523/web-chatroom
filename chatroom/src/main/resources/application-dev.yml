@@ -1,0 +1,30 @@
+# 开发环境配置（默认 profile，见 application.yml 的 spring.profiles.active）
+#
+# 这里放"只在开发期想要"的东西。application.yml 是各环境共用的基线配置，
+# 而这份文件只会在 dev profile 生效 —— 所以生产环境的日志里不会出现满屏 SQL。
+mybatis-plus:
+  configuration:
+    # 把 MyBatis 执行的 SQL、参数、返回行数全打到控制台。
+    # 学习/调试时非常有用，但生产环境一定要关掉：
+    # 一是日志量会爆炸（每条 SQL 刷几行），二是 SQL 参数里可能带明文敏感数据。
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+logging:
+  level:
+    # 只看自己项目包的 debug 日志，别把 Spring / MyBatis 的一起放开
+    com.example.chatroom: debug
+
+spring:
+  web:
+    resources:
+      # 开发期静态资源直接读源码目录，改完 CSS/JS/HTML 刷新浏览器就生效，不用重启。
+      #
+      # 为什么需要这条：spring-boot:run 只在"启动那一刻"把 src/main/resources 拷到
+      # target/classes，之后改前端文件服务器还在发旧的那份 —— 会出现"改了没反应"，
+      # 很容易误以为是选择器写错了，白白排查半天。
+      #
+      # 两个位置都留着是有意的：file: 是相对"工作目录"的，只有在项目根目录启动
+      # （IDEA / mvn spring-boot:run）才存在；万一解析不到，后面的 classpath:/static/
+      # 会兜住，所以不会出现"静态资源全 404"。
+      # 这段只在 dev profile 生效，打包上线的 jar 走的还是 classpath，不受影响。
+      static-locations: file:src/main/resources/static/,classpath:/static/

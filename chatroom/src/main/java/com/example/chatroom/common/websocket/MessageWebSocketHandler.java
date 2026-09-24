@@ -54,13 +54,26 @@ public class MessageWebSocketHandler extends TextWebSocketHandler {
         if (userId == null) {
             return;
         }
+        // 收到任何一帧就刷新活跃时间。这是空闲回收唯一的"活着"信号来源，
+        // 所以必须放在最前面 —— 放在校验之后的话，心跳以外的非法请求就白发了，
+        // 而客户端恰好只发那两种（心跳 + 消息）。
+        onlineUserManager.touch(session);
         try {
             WsMessageRequest request = objectMapper.readValue(message.getPayload(), WsMessageRequest.class);
+
+            // 心跳：客户端每 25s 发一次。只回一个 pong 就返回，不进业务层、不落库、不广播。
+            // 不打日志 —— 一个在线用户每分钟两条，打了会把日志冲得没法看。
+            if (Constant.WS_TYPE_PING.equals(request.getType())) {
+                onlineUserManager.sendTo(userId, WsMessageResponse.ofPong());
+                return;
+            }
+
             if (!Constant.WS_TYPE_MESSAGE.equals(request.getType())) {
                 log.warn("忽略未知的 WebSocket 指令：{}", request.getType());
                 return;
             }
-            messageService.sendMessage(userId, request.getSessionId(), request.getContent());
+            messageService.sendMessage(userId, request.getSessionId(),
+                    request.getContent(), request.getContentType());
         } catch (UserException e) {
             // 业务校验失败（不是会话成员、内容为空……）只回给发送者，连接不能断
             log.warn("WebSocket 消息处理失败：userId = {}, 原因 = {}", userId, e.getMessage());

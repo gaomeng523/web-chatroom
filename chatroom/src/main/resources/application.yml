@@ -1,21 +1,57 @@
 spring:
   datasource:
     url: jdbc:mysql://127.0.0.1:3306/java_chatroom?characterEncoding=utf8&useSSL=false
-    username: root
-    password: 118523
+    # 用环境变量覆盖，本地开发走冒号后面的默认值。
+    # ⚠️ 提醒：默认值本身就写在仓库里，对"公开的仓库"来说等于没隐藏。
+    #    真上线应把这两行改成 ${DB_USERNAME} / ${DB_PASSWORD}（不带默认值），
+    #    然后在部署环境里通过环境变量注入；或者整体挪到 application-local.yml，
+    #    用 spring.profiles.active=local 启动（那个文件名已经在 .gitignore 里了）。
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:118523}
     driver-class-name: com.mysql.cj.jdbc.Driver
   web:
     resources:
       cache:
         cachecontrol:
           no-cache: true
+  servlet:
+    multipart:
+      # 单文件上限 5MB、整个请求上限 10MB。Spring Boot 默认只有 1MB，传张截图就被拒了
+      max-file-size: 5MB
+      max-request-size: 10MB
+  profiles:
+    # 默认走 dev（能看 SQL 日志，方便学习和排查）。
+    # 生产启动时用 --spring.profiles.active=prod 或设置环境变量覆盖，避免日志爆炸。
+    active: ${SPRING_PROFILES_ACTIVE:dev}
 
 mybatis-plus:
   configuration:
+    # 注意这里没有 log-impl —— 打印 SQL 属于"开发期才要"的配置，
+    # 放在 application-dev.yml 里，生产环境的日志里就不会有满屏的 SQL。
     map-underscore-to-camel-case: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
 jwt:
-  secret: "+JEq/o2bYDEtaECkxKCeAt0i3yA0IPUlV2rxFVGS+v4="
+  # 同理，生产必须用环境变量注入，别用仓库里的默认值
+  secret: ${JWT_SECRET:+JEq/o2bYDEtaECkxKCeAt0i3yA0IPUlV2rxFVGS+v4=}
+
+# 上传文件存到项目根目录下的 upload/（头像在 upload/avatar，聊天图片在 upload/chat）。
+# 相对路径在 IDEA 里跑和 mvn 里跑都等于项目根目录；启动日志会打印解析后的绝对路径。
+# upload/ 已加入 .gitignore —— 那是运行期用户数据，不该进版本库。
+file:
+  upload-dir: ${UPLOAD_DIR:./upload}
+
+websocket:
+  # 多久没收到任何帧就认定这条连接死了，由 WebSocketIdleReaper 定时扫描后关掉。
+  # 客户端每 25s 发一次应用层心跳（client.js 的 WS_HEARTBEAT_MS），
+  # 所以这个值要能容忍两三次心跳丢失（网络抖动、GC 停顿），120s ≈ 4 个心跳周期。
+  # 它回收的是"拔网线/合盖休眠"这类 TCP 收不到 FIN 的半开连接 —— 那些连接
+  # afterConnectionClosed 不会被回调，会永远赖在在线表里。0 表示不回收。
+  session-idle-timeout-ms: ${WS_SESSION_IDLE_TIMEOUT_MS:120000}
+  # 扫描周期。想验证它有没有生效：两个都调小（如 4000 / 2000），
+  # 连上一条 WS 后什么都不发，7s 内服务端就会把它关掉，日志里能看到"回收空闲连接"。
+  reap-interval-ms: ${WS_REAP_INTERVAL_MS:30000}
+
 logging:
   file:
-    name: spring-blog.log
+    # 别把日志直接扔项目根目录，收到 logs/ 下（同样已 gitignore）
+    name: logs/chatroom.log

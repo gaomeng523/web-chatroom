@@ -31,3 +31,21 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### 本项目的运行期数据与本地配置 ###
+# 用户上传的头像和聊天图片 —— 属于运行期数据，不该进版本库
+upload/
+
+# 应用日志（logging.file.name 指向 logs/chatroom.log）
+logs/
+*.log
+
+# 本地私密配置：数据库密码、JWT secret 应该放这里而不是 application.yml
+application-local.yml
+application-local.yaml
+application-local.properties
+
+# 项目笔记 / 助手记忆目录。属于个人本地内容，
+# 而且笔记里会记录数据库密码等环境信息，公开仓库不应包含。
+.workbuddy/
+

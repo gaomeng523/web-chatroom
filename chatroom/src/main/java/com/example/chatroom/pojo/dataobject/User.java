@@ -15,4 +15,11 @@ public class User {
     private Integer userId;
     private String userName;
     private String password;
+
+    /**
+     * 头像图片的相对路径，如 /upload/avatar/4_9f2c.png；NULL 表示没设置过、用首字母头像。
+     * 存路径而不是 base64：base64 会让每行膨胀 33%，每次查 user 都得把图片一起拖出来，
+     * 而且完全用不上浏览器缓存。
+     */
+    private String avatar;
 }

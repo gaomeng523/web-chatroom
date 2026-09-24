@@ -2,17 +2,30 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- interactive-widget=resizes-content：Android Chrome 弹键盘时压缩布局视口，
+         卡片会跟着重新居中，不会被键盘盖住。iOS 不支持该值，靠页面自身滚动 + Safari 自动顶起兜底。 -->
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
     <title>登录 - 网页聊天室</title>
     <link rel="stylesheet" href="css/common.css">
     <link rel="stylesheet" href="css/login.css">
 </head>
 <body>
-    <div class="nav"><span>&#128172; 网页聊天室</span></div>
+    <!-- 图标定义：和 client.html 里用的是同一套（没有构建步骤，只能各页面各放一份） -->
+    <svg class="sprite" aria-hidden="true" focusable="false">
+        <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+        </symbol>
+    </svg>
+
+    <div class="nav">
+        <span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="#i-chat"/></svg></span>
+        <span>网页聊天室</span>
+    </div>
     <div class="container">
         <div class="login-card">
             <div class="login-header">
-                <div class="logo">&#128172;</div>
+                <div class="logo"><svg class="icon" aria-hidden="true"><use href="#i-chat"/></svg></div>
                 <h3>欢迎回来</h3>
                 <p>登录你的账号，开始聊天</p>
             </div>
@@ -77,12 +90,8 @@
                 contentType: 'application/json',
                 data: JSON.stringify({ username: username, password: password }),
                 success: function(data) {
-                    // 后端异常会返回 { code, message }
-                    if (data && data.code) {
-                        showTip(data.message || '登录失败！', 'error');
-                        setLoading(false);
-                        return;
-                    }
+                    // 失败一律走下面的 error 回调（后端业务异常现在返回真 400），
+                    // 所以这里只需要判断成功
                     if (data && data.userId > 0) {
                         showTip('登录成功，正在跳转...', 'success');
                         // token 存起来，后续接口鉴权要用
@@ -96,7 +105,11 @@
                     }
                 },
                 error: function(xhr) {
-                    if (xhr.status === 400) {
+                    // 后端的业务异常（密码错、用户不存在）现在返回真 400 + {code, message}，
+                    // 优先显示它给的原因，别把"用户名或密码错误"盖成笼统的"请求参数有误"。
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        showTip(xhr.responseJSON.message, 'error');
+                    } else if (xhr.status === 400) {
                         showTip('请求参数有误！', 'error');
                     } else if (xhr.status === 404) {
                         showTip('接口不存在，请检查后端服务！', 'error');

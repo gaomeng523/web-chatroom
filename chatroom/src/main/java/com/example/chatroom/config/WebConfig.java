@@ -45,7 +45,12 @@ public class WebConfig implements WebMvcConfigurer {
                         "/error",
                         // WebSocket 握手：它拿不到 User-Token 请求头，鉴权交给 AuthHandshakeInterceptor
                         // （token 挂在 URL query 上）。这里必须放行，否则会被当成普通请求判 401。
-                        "/ws/**"
+                        "/ws/**",
+                        // 头像读取接口：<img src="/avatar/4"> 是浏览器原生请求，带不了自定义请求头。
+                        // 注意只放行读取，上传头像走的是 POST /user/avatar，那个仍然要登录鉴权。
+                        "/avatar/**",
+                        // 上传目录的静态资源（聊天图片 <img src> 也是原生请求）
+                        "/upload/**"
                 );
     }
 }

@@ -20,7 +20,9 @@ create table user (
     user_id   int primary key auto_increment,
     user_name varchar(20) unique,
     -- Md5Util.encrypt() 输出 = 32位MD5 + 32位盐，共64位，必须留够长度
-    password  varchar(64)
+    password  varchar(64),
+    -- 头像图片的相对路径，如 /upload/avatar/4_9f2c.png；NULL = 用默认首字母头像
+    avatar    varchar(255) default null
 ) engine = InnoDB default charset = utf8mb4 comment = '用户表';
 
 -- ============ 好友关系表 ============
@@ -42,10 +44,16 @@ create table add_friend_request (
 ) engine = InnoDB default charset = utf8mb4 comment = '添加好友请求表';
 
 -- ============ 会话表 ============
+-- 单聊和群聊共用这张表，靠 type 区分：
+--   单聊：name 为 NULL，标题取"对方的昵称"（查出来的，不是存出来的）
+--   群聊：name 是群名
+-- 成员关系一律放 message_session_user，单聊 2 行、群聊 N 行 —— 这就是群聊的天然支持
 drop table if exists message_session;
 create table message_session (
     session_id int primary key auto_increment,
-    last_time  datetime default null comment '最后一条消息的时间，用于会话列表排序'
+    type       tinyint     not null default 1 comment '会话类型：1 单聊，2 群聊',
+    name       varchar(64) default null comment '群名称，单聊为 NULL',
+    last_time  datetime    default null comment '最后一条消息的时间，用于会话列表排序'
 ) engine = InnoDB default charset = utf8mb4 comment = '会话表';
 
 -- ============ 会话成员表 ============
@@ -66,8 +74,12 @@ create table message (
     message_id int primary key auto_increment,
     from_id    int           default null comment '发送者 user_id',
     session_id int           default null comment '所属会话',
-    content    varchar(2048) default null comment '消息内容',
+    content    varchar(2048) default null comment '消息内容；type=2 时存图片路径',
     post_time  datetime      default null comment '发送时间',
+    revoked    tinyint(1)    not null default 0 comment '是否已撤回：0 正常，1 已撤回',
+    -- 图片消息复用 content 列存路径，靠 type 决定前端渲染成文本还是 <img>。
+    -- 不单开一列存图片路径：那样每加一种消息类型（语音/文件/位置）就要加一列，表会越来越宽。
+    type       tinyint       not null default 1 comment '消息类型：1 文本，2 图片',
     -- 按会话查历史消息、取最后一条，都走这个联合索引
     key idx_msg_session_time (session_id, post_time)
 ) engine = InnoDB default charset = utf8mb4 comment = '消息表';

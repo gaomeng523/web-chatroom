@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -45,5 +46,35 @@ public class SessionController {
     @GetMapping("/sessionRead")
     public void markSessionRead(HttpServletRequest request, Integer sessionId) {
         sessionService.markSessionRead(currentUserId(request), sessionId);
+    }
+
+    // ==================== 群聊 ====================
+    // 和好友模块一样，全部平铺无前缀，且写操作走 POST 但参数挂 URL query。
+    // 唯一例外是 /group 的 memberIds —— 它是个数组，query 里用 memberIds=4&memberIds=5
+    // 这种重复参数名，Spring 直接能绑到 List<Integer>，不用 @RequestBody。
+
+    /**
+     * 建群。参数：name=群名&amp;memberIds=4&amp;memberIds=5
+     *
+     * @param memberIds 只放"别人"，创建者由后端从 token 里取、自动入群，
+     *                  前端就算把自己的 id 传进来也会被 Service 去重掉
+     */
+    @PostMapping("/group")
+    public SessionCreateResponse createGroup(HttpServletRequest request,
+                                             String name,
+                                             @RequestParam(required = false) List<Integer> memberIds) {
+        return sessionService.createGroup(currentUserId(request), name, memberIds);
+    }
+
+    /** 往群里加人。参数：sessionId=3&amp;newMemberId=5 */
+    @PostMapping("/groupMember")
+    public void addGroupMember(HttpServletRequest request, Integer sessionId, Integer newMemberId) {
+        sessionService.addGroupMember(currentUserId(request), sessionId, newMemberId);
+    }
+
+    /** 退群。参数：sessionId=3 */
+    @PostMapping("/quitGroup")
+    public void quitGroup(HttpServletRequest request, Integer sessionId) {
+        sessionService.quitGroup(currentUserId(request), sessionId);
     }
 }

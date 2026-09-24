@@ -1,400 +1,988 @@
 /* ========================================
    主聊天页面样式
+   ========================================
+   布局改成铺满视口（像真正的桌面客户端），不再做"渐变背景 + 居中悬浮大圆角卡片"。
+   那种做法本身就自带"落地页 / AI 生成"的观感。
+   设计令牌见 common.css 顶部。
    ======================================== */
+
+/* === 头像图片 ===
+   真实头像用 <img> 绝对定位盖在"首字母色块"上。
+   服务端没设过头像返回 404 时，img.onerror 会把图自己删掉，
+   底下的色块自然露出来 —— 所以不用额外判断"有没有头像"。 */
+.avatar, .item-avatar, .msg-avatar { position: relative; overflow: hidden; }
+
+.avatar-img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; border-radius: inherit;
+}
+
+/* 隐藏的文件选择框（头像 / 聊天图片），只能通过点按钮来触发 */
+.hide-file { display: none; }
+
+/* 头像底色：低饱和的纯色，不再用渐变。
+   类名（avatar-green 等）由 client.js 的 avatarColors 数组决定，别改名。 */
+.avatar-green  { background: #47795f; }
+.avatar-blue   { background: #4b6d94; }
+.avatar-purple { background: #6a5d8a; }
+.avatar-orange { background: #8f6137; }
+.avatar-pink   { background: #93526a; }
+.avatar-teal   { background: #3c7575; }
+
+/* 群头像里放的是"多人"图标（client.js 的 renderGroupAvatar），
+   默认 18px 在 36px 的圆里偏小，按头像尺寸各放大一档。
+   头像底色是深色，图标颜色跟着 .avatar / .item-avatar 的 color:#fff 走。 */
+.item-avatar .icon { width: 19px; height: 19px; }
+.msg-avatar .icon { width: 17px; height: 17px; }
+
+/* ======================================== */
 
 .client-container {
     width: 100%; height: 100%;
-    display: flex; justify-content: center; align-items: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    position: relative;
-}
-
-.bg-blur {
-    position: absolute; width: 100%; height: 100%;
-    filter: blur(30px) brightness(0.7);
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-    z-index: 1;
-}
-
-.main {
-    width: 1100px; height: 780px;
-    background: var(--bg-white);
-    border-radius: var(--radius-lg);
-    z-index: 2;
     display: flex;
-    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+    background: var(--surface);
     overflow: hidden;
 }
 
-/* === 左侧边栏 === */
-.main > .left {
-    width: 300px; height: 100%;
-    background: var(--bg-sidebar);
-    display: flex; flex-direction: column;
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
+.main {
+    width: 100%; height: 100%;
+    display: flex;
+    background: var(--surface);
+    overflow: hidden;
 }
 
+/* === 左侧边栏 ===
+   浅色侧栏。原来那种 #1e1e32 的深蓝紫是"后台管理模板"的标配，
+   真实 IM（微信桌面版 / Slack / Teams）侧栏基本是浅灰或纯中性深灰。 */
+.main > .left {
+    width: 300px; height: 100%;
+    flex-shrink: 0;
+    background: var(--canvas);
+    border-right: 1px solid var(--line);
+    display: flex; flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* 当前用户 */
 .main > .left > .user-info {
-    height: 70px; display: flex; align-items: center;
-    padding: 0 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    height: 58px; flex-shrink: 0;
+    display: flex; align-items: center; gap: 10px;
+    padding: 0 14px;
 }
 
 .main > .left > .user-info .avatar {
-    width: 40px; height: 40px; border-radius: var(--radius-full);
+    width: 34px; height: 34px; border-radius: var(--radius-full);
     display: flex; align-items: center; justify-content: center;
-    color: white; font-size: 16px; font-weight: 600;
-    margin-right: 12px; flex-shrink: 0;
+    color: #fff; font-size: 14px; font-weight: 600;
+    cursor: pointer; flex-shrink: 0;
+    transition: opacity var(--t-fast);
 }
 
+.main > .left > .user-info .avatar:hover { opacity: 0.85; }
+
 .main > .left > .user-info .username {
-    font-size: 16px; font-weight: 500; color: var(--text-white);
+    font-size: 14px; font-weight: 600; color: var(--ink);
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
+/* 搜索行：输入框 + 两个等高的图标按钮 */
 .main > .left > .search {
-    padding: 12px 16px; display: flex; gap: 8px;
+    flex-shrink: 0;
+    padding: 0 12px 10px;
+    display: flex; align-items: center; gap: 6px;
 }
 
 .main > .left > .search > input {
-    flex: 1; height: 36px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: var(--radius-sm);
-    padding: 0 12px; font-size: 13px; color: var(--text-white);
-    transition: var(--transition);
+    flex: 1; min-width: 0; height: 34px;
+    background: var(--surface);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-md);
+    padding: 0 10px;
+    font-size: 13px; color: var(--ink);
+    transition: border-color var(--t-fast), box-shadow var(--t-fast);
 }
 
-.main > .left > .search > input::placeholder { color: rgba(255, 255, 255, 0.3); }
-.main > .left > .search > input:focus { background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.15); }
+.main > .left > .search > input::placeholder { color: var(--ink-3); }
+.main > .left > .search > input:hover { border-color: #c6ccd2; }
+.main > .left > .search > input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
 
 .main > .left > .search > button {
-    width: 36px; height: 36px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: var(--radius-sm);
-    color: var(--text-sidebar); font-size: 16px;
+    width: 34px; height: 34px; flex-shrink: 0;
+    background: var(--surface);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-md);
+    color: var(--ink-2);
     display: flex; align-items: center; justify-content: center;
-    transition: var(--transition); flex-shrink: 0;
+    transition: background-color var(--t-fast), color var(--t-fast), border-color var(--t-fast);
 }
 
-.main > .left > .search > button:hover { background: rgba(255, 255, 255, 0.15); color: var(--text-white); }
+.main > .left > .search > button:hover {
+    background: var(--canvas-2); color: var(--ink); border-color: var(--line-2);
+}
 
+.main > .left > .search > button:active { background: var(--canvas-3); }
+
+/* 会话 / 好友 切换：做成"分段控件"，比下划线 tab 更像客户端 */
 .main > .left > .tab {
-    height: 46px; display: flex;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    flex-shrink: 0;
+    display: flex; gap: 2px;
+    padding: 0 10px 8px;
 }
 
 .main > .left > .tab > div {
-    flex: 1; display: flex; align-items: center; justify-content: center;
-    cursor: pointer; color: var(--text-sidebar);
-    font-size: 13px; font-weight: 500;
-    transition: var(--transition); position: relative; gap: 6px;
+    flex: 1; height: 32px;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    border-radius: var(--r-md);
+    cursor: pointer;
+    font-size: 13px; font-weight: 500; color: var(--ink-2);
+    transition: background-color var(--t-fast), color var(--t-fast);
 }
 
-.main > .left > .tab > div:hover { color: var(--text-sidebar-active); background: rgba(255, 255, 255, 0.04); }
-.main > .left > .tab > div.active { color: var(--primary); }
+.main > .left > .tab > div:hover { background: var(--canvas-2); }
 
-.main > .left > .tab > div.active::after {
-    content: ''; position: absolute; bottom: 0; left: 50%;
-    transform: translateX(-50%); width: 24px; height: 2px;
-    background: var(--primary); border-radius: 1px;
+.main > .left > .tab > div.active {
+    background: var(--surface); color: var(--ink);
+    font-weight: 600;
+    box-shadow: var(--shadow-sm);
 }
 
-.tab-icon { font-size: 16px; }
+.tab-icon { display: flex; }
 
-.main > .left > .list { flex: 1; overflow-y: auto; overflow-x: hidden; }
-
-.main > .left > .list > li {
-    display: flex; align-items: center;
-    padding: 14px 20px; cursor: pointer;
-    transition: var(--transition);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-    position: relative;
+/* 列表
+   ⚠️ 这里必须用后代选择器（空格），不能用直接子选择器（>）。
+   页面上有两个 .list：侧栏的 #session-list 是 .left 的直接子元素，
+   而 #friend-list 在 .friend-panel 里面、隔了一层。
+   写成 `.main > .left .list` 只有 #session-list 命中，
+   好友列表会整块没样式（头像和文字挤成一坨）。 */
+.main > .left .list {
+    flex: 1; min-height: 0;
+    overflow-y: auto; overflow-x: hidden;
+    padding: 0 8px 10px;
 }
 
-.main > .left > .list > li:hover { background: var(--bg-sidebar-hover); }
-.main > .left > .list > li.selected { background: var(--bg-sidebar-active); }
-
-.main > .left > .list > li.selected::before {
-    content: ''; position: absolute; left: 0; top: 50%;
-    transform: translateY(-50%); width: 3px; height: 24px;
-    background: var(--primary); border-radius: 0 2px 2px 0;
+.main > .left .list > li {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 8px;
+    border-radius: var(--r-md);
+    cursor: pointer;
+    transition: background-color var(--t-fast);
 }
 
-.main > .left > .list > li .item-avatar {
-    width: 42px; height: 42px; border-radius: var(--radius-full);
+.main > .left .list > li:hover { background: var(--canvas-2); }
+.main > .left .list > li.selected { background: var(--canvas-3); }
+.main > .left .list > li.selected:hover { background: var(--canvas-3); }
+
+.main > .left .list > li .item-avatar {
+    width: 36px; height: 36px; border-radius: var(--radius-full);
     display: flex; align-items: center; justify-content: center;
-    color: white; font-size: 16px; font-weight: 600;
-    margin-right: 12px; flex-shrink: 0;
+    color: #fff; font-size: 14px; font-weight: 600;
+    flex-shrink: 0;
 }
 
-.avatar-green { background: linear-gradient(135deg, #07c160, #00b894); }
-.avatar-blue { background: linear-gradient(135deg, #10aeff, #0984e3); }
-.avatar-purple { background: linear-gradient(135deg, #764ba2, #6c5ce7); }
-.avatar-orange { background: linear-gradient(135deg, #ff9800, #f57c00); }
-.avatar-pink { background: linear-gradient(135deg, #e84393, #fd79a8); }
-.avatar-teal { background: linear-gradient(135deg, #00cec9, #00b5ad); }
+.main > .left .list > li .item-content { flex: 1; min-width: 0; }
 
-.main > .left > .list > li .item-content { flex: 1; min-width: 0; }
-
-.main > .left > .list > li .item-content h3 {
-    font-size: 14px; font-weight: 500; color: var(--text-white);
-    margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-
-.main > .left > .list > li .item-content p {
-    font-size: 12px; color: var(--text-sidebar);
+.main > .left .list > li .item-content h3,
+.main > .left .list > li .item-content h4 {
+    font-size: 13.5px; font-weight: 500; color: var(--ink);
+    margin-bottom: 2px;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
-#friend-list > li { padding: 12px 20px; }
-#friend-list > li h4 { font-size: 15px; font-weight: 500; color: var(--text-white); }
+.main > .left .list > li .item-content p {
+    font-size: 12px; color: var(--ink-2);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* 群聊成员数这种小标记 */
+.item-content .member-count { font-weight: 400; color: var(--ink-3); }
 
 /* === 会话未读红点 === */
-.main > .left > .list > li .unread-badge {
+.main > .left .list > li .unread-badge {
     flex-shrink: 0;
     min-width: 18px; height: 18px;
-    padding: 0 5px; margin-left: 8px;
-    border-radius: 9px;
-    background: var(--danger); color: var(--text-white);
-    font-size: 11px; font-weight: 500;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: var(--danger); color: #fff;
+    font-size: 11px; font-weight: 600;
+    font-variant-numeric: tabular-nums;
     line-height: 18px; text-align: center;
 }
 
 /* === 好友面板（好友 tab 下的内容区）=== */
 .main > .left > .friend-panel {
-    flex: 1; display: flex; flex-direction: column;
+    flex: 1; min-height: 0;
+    display: flex; flex-direction: column;
     overflow: hidden;
 }
 
 /* 待处理的好友请求区 */
 .main > .left > .friend-panel > .request-section {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    flex-shrink: 0;
     display: flex; flex-direction: column;
     max-height: 45%;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 4px;
 }
 
 .main > .left > .friend-panel > .request-section > .section-title {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 20px 8px;
-    font-size: 12px; font-weight: 500;
-    color: var(--text-sidebar);
-    letter-spacing: 0.5px;
+    padding: 10px 12px 6px;
+    font-size: 11px; font-weight: 600;
+    color: var(--ink-3);
+    letter-spacing: 0.06em;
 }
 
 .main > .left > .friend-panel > .request-section > .section-title > .request-count {
     min-width: 18px; height: 18px; padding: 0 6px;
-    background: var(--danger); color: white;
-    border-radius: 9px; font-size: 11px; font-weight: 600;
+    background: var(--danger); color: #fff;
+    border-radius: 999px; font-size: 11px; font-weight: 600;
+    font-variant-numeric: tabular-nums;
     display: flex; align-items: center; justify-content: center;
 }
 
 .main > .left > .friend-panel > .request-section > .request-list {
-    flex: 1; overflow-y: auto; overflow-x: hidden;
+    flex: 1; min-height: 0;
+    overflow-y: auto; overflow-x: hidden;
+    padding: 0 8px 8px;
 }
 
 .main > .left > .friend-panel > .request-section > .request-list > li {
-    padding: 12px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    padding: 8px;
+    border-radius: var(--r-md);
+    transition: background-color var(--t-fast);
 }
 
+.main > .left > .friend-panel > .request-section > .request-list > li:hover { background: var(--canvas-2); }
+
 .main > .left > .friend-panel > .request-section > .request-list > li .req-top {
-    display: flex; align-items: center;
+    display: flex; align-items: center; gap: 10px;
 }
 
 .main > .left > .friend-panel > .request-section > .request-list > li .req-top .item-avatar {
-    width: 36px; height: 36px; border-radius: var(--radius-full);
+    width: 32px; height: 32px; border-radius: var(--radius-full);
     display: flex; align-items: center; justify-content: center;
-    color: white; font-size: 14px; font-weight: 600;
-    margin-right: 10px; flex-shrink: 0;
+    color: #fff; font-size: 13px; font-weight: 600;
+    flex-shrink: 0;
 }
 
-.main > .left > .friend-panel > .request-section > .request-list > li .req-info {
-    flex: 1; min-width: 0;
-}
+.main > .left > .friend-panel > .request-section > .request-list > li .req-info { flex: 1; min-width: 0; }
 
 .main > .left > .friend-panel > .request-section > .request-list > li .req-info h3 {
-    font-size: 14px; font-weight: 500; color: var(--text-white);
+    font-size: 13px; font-weight: 500; color: var(--ink);
     margin-bottom: 2px;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
 .main > .left > .friend-panel > .request-section > .request-list > li .req-info p {
-    font-size: 12px; color: var(--text-sidebar);
+    font-size: 12px; color: var(--ink-2);
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
-.friend-request-actions { display: flex; gap: 8px; margin-top: 10px; padding-left: 46px; }
+.friend-request-actions { display: flex; gap: 6px; margin-top: 8px; padding-left: 42px; }
 
 .friend-request-actions button {
-    padding: 4px 14px; border-radius: var(--radius-sm);
-    font-size: 12px; font-weight: 500; transition: var(--transition);
+    height: 26px; padding: 0 12px;
+    border-radius: var(--r-sm);
+    font-size: 12px; font-weight: 500;
+    transition: background-color var(--t-fast), border-color var(--t-fast), color var(--t-fast);
 }
 
-.friend-request-actions .btn-accept { background: var(--primary); color: white; }
-.friend-request-actions .btn-accept:hover { background: var(--primary-dark); }
-.friend-request-actions .btn-reject { background: rgba(255, 255, 255, 0.1); color: var(--text-sidebar); }
-.friend-request-actions .btn-reject:hover { background: rgba(250, 81, 81, 0.2); color: var(--danger); }
+.friend-request-actions .btn-accept { background: var(--accent); color: #fff; }
+.friend-request-actions .btn-accept:hover { background: var(--accent-hover); }
 
-/* 好友列表为空时的提示 */
+.friend-request-actions .btn-reject {
+    background: var(--surface); color: var(--ink-2);
+    border: 1px solid var(--line-2);
+}
+.friend-request-actions .btn-reject:hover {
+    background: var(--danger-soft); color: var(--danger); border-color: var(--danger-line);
+}
+
+/* 列表为空时的提示 */
 .list-tip {
-    padding: 24px 20px; text-align: center;
-    font-size: 12px; color: var(--text-placeholder);
-    line-height: 1.8;
+    padding: 28px 16px; text-align: center;
+    font-size: 12px; color: var(--ink-3);
+    line-height: 1.9;
+}
+
+/* 好友面板顶部工具条 */
+.main > .left > .friend-panel > .friend-toolbar {
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 4px 12px 6px;
+}
+
+.friend-toolbar .toolbar-title {
+    font-size: 11px; font-weight: 600; color: var(--ink-3);
+    letter-spacing: 0.06em;
+}
+
+.friend-toolbar .toolbar-btn {
+    height: 26px; padding: 0 10px;
+    background: var(--surface);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-sm);
+    color: var(--ink-2);
+    font-size: 12px;
+    transition: background-color var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+}
+
+.friend-toolbar .toolbar-btn:hover {
+    background: var(--canvas-2); color: var(--ink);
+}
+
+/* 多选模式的建群/邀请操作条 */
+.main > .left > .friend-panel > .group-bar {
+    flex-shrink: 0;
+    padding: 10px 12px;
+    background: var(--surface);
+    border-top: 1px solid var(--line);
+}
+
+.group-bar .group-name-input {
+    width: 100%; height: 32px; margin-bottom: 8px;
+    padding: 0 10px;
+    background: var(--surface);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-md);
+    font-size: 13px; color: var(--ink);
+    transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+
+.group-bar .group-name-input::placeholder { color: var(--ink-3); }
+.group-bar .group-name-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
+
+.group-bar .group-bar-row { display: flex; align-items: center; gap: 6px; }
+
+.group-bar .group-selected-tip {
+    flex: 1; font-size: 12px; color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+}
+
+.group-bar button {
+    height: 28px; padding: 0 14px;
+    border-radius: var(--r-md);
+    font-size: 12px; font-weight: 500;
+    transition: background-color var(--t-fast), border-color var(--t-fast), color var(--t-fast);
+}
+
+.group-bar .group-cancel {
+    background: var(--surface); color: var(--ink-2);
+    border: 1px solid var(--line-2);
+}
+.group-bar .group-cancel:hover { background: var(--canvas-2); color: var(--ink); }
+
+.group-bar .group-confirm { background: var(--accent); color: #fff; }
+.group-bar .group-confirm:hover { background: var(--accent-hover); }
+
+/* 多选模式下被勾选的好友：右侧打勾 + 高亮 */
+.main > .left > .friend-panel.selecting #friend-list > li.picked { background: var(--accent-soft); }
+
+.main > .left > .friend-panel.selecting #friend-list > li.picked::after {
+    content: '\2713';
+    flex-shrink: 0; margin-left: 8px;
+    color: var(--accent); font-size: 14px; font-weight: 700;
 }
 
 /* === 右侧聊天区域 === */
 .main > .right {
-    flex: 1; display: flex; flex-direction: column;
-    background: var(--bg-chat);
+    flex: 1; min-width: 0;
+    display: flex; flex-direction: column;
+    background: var(--canvas-4);
+    overflow: hidden;
 }
 
 .main > .right > .title {
-    height: 60px; display: flex; align-items: center;
-    padding: 0 24px; background: var(--bg-white);
-    border-bottom: 1px solid var(--border-color);
-    font-size: 16px; font-weight: 600; color: var(--text-primary);
+    height: 56px; flex-shrink: 0;
+    display: flex; align-items: center; gap: 10px;
+    padding: 0 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    font-size: 15px; font-weight: 600; color: var(--ink);
 }
 
-.main > .right > .title .chat-title-name { flex: 1; }
-.main > .right > .title .chat-status { font-size: 12px; font-weight: 400; color: var(--text-secondary); }
+.main > .right > .title .chat-title-name {
+    flex: 1; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
 
+/* 移动端的"返回会话列表"按钮。
+   桌面是并排两栏，不存在"返回"这个概念，所以默认整块不显示；
+   真正的样式在文件末尾的 @media (max-width: 768px) 里给。
+   这里保留元素而不是用 JS 动态插 —— 省掉一段"到底插没插进去"的同步问题。 */
+.main > .right > .title > .back-btn { display: none; }
+
+/* 连接状态三态：在线 / 重连中… / 离线。
+   在线不显眼（正常状态不该抢注意力），后两者才染色提醒。
+   文案由 client.js 的 setChatStatus 给，改文案时一起看。 */
+.main > .right > .title .chat-status {
+    flex-shrink: 0;
+    font-size: 12px; font-weight: 400; color: var(--ink-3);
+    display: flex; align-items: center; gap: 5px;
+}
+
+.main > .right > .title .chat-status.online { color: var(--ink-3); }
+.main > .right > .title .chat-status.offline { color: var(--warning); }
+
+.main > .right > .title .member-count {
+    font-size: 12px; font-weight: 400; color: var(--ink-3);
+}
+
+/* 群聊才有的"邀请 / 退出群聊"按钮 */
+.main > .right > .title .title-actions {
+    flex-shrink: 0;
+    display: flex; align-items: center; gap: 6px;
+}
+
+.title-actions .title-btn {
+    height: 28px; padding: 0 11px;
+    background: var(--surface); color: var(--ink-2);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-md);
+    font-size: 12px; font-weight: 400;
+    transition: background-color var(--t-fast), border-color var(--t-fast), color var(--t-fast);
+}
+
+.title-actions .title-btn:hover {
+    background: var(--canvas-2); color: var(--ink); border-color: var(--line-2);
+}
+
+.title-actions .title-btn.danger:hover {
+    background: var(--danger-soft); color: var(--danger); border-color: var(--danger-line);
+}
+
+/* === 消息区 === */
 .main > .right > .message-show {
-    flex: 1; overflow-y: auto; overflow-x: hidden;
-    padding: 20px 24px; display: flex; flex-direction: column;
+    flex: 1; min-height: 0;
+    overflow-y: auto; overflow-x: hidden;
+    padding: 18px 20px 10px;
+    display: flex; flex-direction: column;
+    gap: 2px;
 }
 
 .main > .right > .message-show > .message {
-    display: flex; margin-bottom: 16px;
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 12px;
 }
 
 .main > .right > .message-show > .message-left { justify-content: flex-start; }
 .main > .right > .message-show > .message-right { justify-content: flex-end; }
 
 .main > .right > .message-show > .message > .bubble {
-    max-width: 65%; position: relative;
+    max-width: min(62%, 560px);
+    min-width: 0;
+    display: flex; flex-direction: column;
 }
+
+.main > .right > .message-show > .message-left > .bubble { align-items: flex-start; }
+.main > .right > .message-show > .message-right > .bubble { align-items: flex-end; }
 
 .main > .right > .message-show > .message > .bubble .sender-info {
-    font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;
+    font-size: 12px; color: var(--ink-3);
+    margin-bottom: 4px;
 }
 
-.main > .right > .message-show > .message-right > .bubble .sender-info { text-align: right; }
+/* 单聊里名字是多余的（对方就一个人），由 client.js 打上 is-single。
+   默认是"显示"，只有明确知道是单聊才隐藏 —— 这样漏加 class 也不会把人名弄丢。 */
+.message-show.is-single .sender-info { display: none; }
 
 .main > .right > .message-show > .message > .bubble .msg-content {
-    padding: 12px 16px; border-radius: var(--radius-md);
-    font-size: 14px; line-height: 1.6; word-break: break-word;
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: var(--r-lg);
+    font-size: 14px; line-height: 1.55;
+    word-break: break-word;
+    white-space: pre-wrap;
 }
 
+/* 别人的消息：白底 + 1px 细边。不用投影 —— 阴影一多就"卡片感/模板感"。 */
 .main > .right > .message-show > .message-left > .bubble .msg-content {
-    background: var(--bg-white); color: var(--text-primary);
-    border-top-left-radius: 4px; box-shadow: var(--shadow-sm);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    border-bottom-left-radius: var(--r-xs);
 }
 
+/* 自己的消息：浅松绿底 + 深色字。
+   不用"高饱和绿底 + 白字"——那是微信的会员绿，也是最容易显土的一种搭法。 */
 .main > .right > .message-show > .message-right > .bubble .msg-content {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-    color: white; border-top-right-radius: 4px;
-    box-shadow: 0 2px 8px rgba(7, 193, 96, 0.25);
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-line);
+    color: var(--accent-ink);
+    border-bottom-right-radius: var(--r-xs);
 }
 
 .main > .right > .message-show > .message > .bubble .msg-time {
-    font-size: 11px; color: var(--text-placeholder); margin-top: 4px;
+    font-size: 11px; color: var(--ink-3);
+    margin-top: 4px;
+    font-variant-numeric: tabular-nums;
 }
 
-.main > .right > .message-show > .message-right > .bubble .msg-time { text-align: right; }
-
 .msg-avatar {
-    width: 36px; height: 36px; border-radius: var(--radius-full);
+    width: 32px; height: 32px; border-radius: var(--radius-full);
     display: flex; align-items: center; justify-content: center;
-    color: white; font-size: 14px; font-weight: 600;
+    color: #fff; font-size: 13px; font-weight: 600;
     flex-shrink: 0; margin: 0 10px;
 }
 
 .message-left .msg-avatar { order: -1; }
 .message-right .msg-avatar { order: 1; }
 
-.main > .right > .message-input {
-    background: var(--bg-white);
-    border-top: 1px solid var(--border-color);
-    padding: 12px 24px;
+/* 图片消息 */
+.main > .right > .message-show > .message > .bubble .msg-image {
+    display: block;
+    max-width: 240px; max-height: 240px;
+    border-radius: var(--r-lg);
+    border: 1px solid var(--line);
+    cursor: zoom-in;
 }
 
-.main > .right > .message-input > textarea {
-    width: 100%; height: 80px; resize: none;
-    border: none; outline: none; font-size: 14px; line-height: 1.6;
-    color: var(--text-primary); background: transparent;
-    font-family: var(--font-family);
+/* === 消息撤回 ==== */
+/* order:-1 让按钮排到气泡前面（自己消息的内侧），不用碰原有 flex 布局 */
+.main > .right > .message-show > .message > .revoke-btn {
+    order: -1; align-self: center; flex-shrink: 0;
+    height: 24px; padding: 0 8px;
+    margin-right: 6px;
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-sm);
+    background: var(--surface); color: var(--ink-3);
+    font-size: 11px;
+    opacity: 0;
+    transition: opacity var(--t-fast), color var(--t-fast), border-color var(--t-fast);
 }
 
-.main > .right > .message-input > textarea::placeholder { color: var(--text-placeholder); }
+/* 平时藏起来，鼠标移到这条消息上才露 —— 撤回按钮常显会把消息区弄得很吵 */
+.main > .right > .message-show > .message:hover > .revoke-btn { opacity: 1; }
 
-.main > .right > .ctrl {
-    display: flex; justify-content: flex-end; align-items: center;
-    padding: 0 24px 12px; background: var(--bg-white); gap: 12px;
+/* 键盘用户没有"悬停"，只靠 :hover 露出来的按钮他们永远看不到。
+   :focus-within 让消息里任何元素拿到焦点时也把它显示出来。 */
+.main > .right > .message-show > .message:focus-within > .revoke-btn { opacity: 1; }
+
+/* 触屏没有 hover，撤回改成长按气泡 → 由 client.js 打上 .show-actions。
+   复用了同一个按钮，不额外造一套菜单 UI。
+   选择器比上面那条多一个类，所以能盖过 opacity:0。 */
+.main > .right > .message-show > .message.show-actions > .revoke-btn { opacity: 1; }
+
+.main > .right > .message-show > .message > .revoke-btn:hover {
+    color: var(--danger); border-color: var(--danger-line); background: var(--danger-soft);
 }
 
-.main > .right > .ctrl > .hint { font-size: 12px; color: var(--text-placeholder); }
-
-.main > .right > .ctrl > button {
-    height: 36px; min-width: 80px; padding: 0 20px;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-    color: white; border: none; border-radius: var(--radius-sm);
-    font-size: 14px; font-weight: 500; transition: var(--transition);
-    box-shadow: 0 2px 8px rgba(7, 193, 96, 0.25);
+/* 已撤回消息的占位提示 */
+.main > .right > .message-show > .message-revoked {
+    flex-shrink: 0;
+    width: fit-content; max-width: 60%;
+    margin: 0 auto 12px;
+    padding: 3px 10px;
+    background: rgba(27, 31, 36, 0.05);
+    border-radius: var(--r-sm);
+    font-size: 12px; color: var(--ink-3);
+    text-align: center;
 }
 
-.main > .right > .ctrl > button:hover { box-shadow: 0 4px 12px rgba(7, 193, 96, 0.35); transform: translateY(-1px); }
-.main > .right > .ctrl > button:active { transform: translateY(0); }
+/* === 输入区 ===
+   .message-input 和 .ctrl 合起来是一个"输入盒子"：上圆角 + 下圆角，
+   中间不断开，聚焦时整圈变强调色 —— 这是 Slack / Linear 那套 composer 的做法。 */
+.main > .right > .composer {
+    flex-shrink: 0;
+    padding: 12px 20px 16px;
+    background: var(--surface);
+    border-top: 1px solid var(--line);
+}
 
-/* 搜索结果 */
+.main > .right > .composer > .message-input {
+    position: relative;
+    padding: 8px 12px 2px;
+    border: 1px solid var(--line-2);
+    border-bottom: none;
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
+    transition: border-color var(--t-fast);
+}
+
+.main > .right > .composer > .message-input > textarea {
+    display: block;
+    width: 100%; height: 60px;
+    font-size: 14px; line-height: 1.6;
+    color: var(--ink);
+}
+
+.main > .right > .composer > .message-input > textarea::placeholder { color: var(--ink-3); }
+
+.main > .right > .composer > .ctrl {
+    display: flex; align-items: center; gap: 10px;
+    padding: 4px 8px 6px;
+    border: 1px solid var(--line-2);
+    border-top: none;
+    border-radius: 0 0 var(--r-lg) var(--r-lg);
+    background: var(--surface);
+    transition: border-color var(--t-fast);
+}
+
+.main > .right > .composer:focus-within > .message-input,
+.main > .right > .composer:focus-within > .ctrl { border-color: var(--accent); }
+
+.main > .right > .composer > .ctrl > .ctrl-tools {
+    display: flex; gap: 2px; margin-right: auto;
+}
+
+.ctrl-tools .tool-btn {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: var(--r-sm);
+    color: var(--ink-2);
+    transition: background-color var(--t-fast), color var(--t-fast);
+}
+
+.ctrl-tools .tool-btn:hover { background: var(--canvas-2); color: var(--ink); }
+.ctrl-tools .tool-btn:active { background: var(--canvas-3); }
+
+.main > .right > .composer > .ctrl > .hint {
+    font-size: 12px; color: var(--ink-3);
+    white-space: nowrap;
+}
+
+.main > .right > .composer > .ctrl > #send-btn {
+    height: 30px; padding: 0 16px;
+    background: var(--accent); color: #fff;
+    border-radius: var(--r-md);
+    font-size: 13px; font-weight: 500;
+    transition: background-color var(--t-fast);
+}
+
+.main > .right > .composer > .ctrl > #send-btn:hover { background: var(--accent-hover); }
+.main > .right > .composer > .ctrl > #send-btn:active { background: var(--accent-press); }
+
+/* 表情面板：挂在输入框上方 */
+.main > .right > .composer > .message-input > .emoji-panel {
+    position: absolute; bottom: calc(100% + 8px); left: 0;
+    width: 312px; max-height: 208px; overflow-y: auto;
+    padding: 8px;
+    background: var(--surface);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-xl);
+    box-shadow: var(--shadow-lg);
+    display: flex; flex-wrap: wrap; gap: 2px;
+    z-index: 20;
+}
+
+.emoji-panel .emoji-item {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 19px; line-height: 1;
+    border-radius: var(--r-md);
+    cursor: pointer;
+    transition: background-color var(--t-fast);
+}
+
+.emoji-panel .emoji-item:hover { background: var(--canvas-2); }
+
+/* === 空状态 === */
+.empty-state {
+    flex: 1;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 12px;
+    color: var(--ink-3);
+}
+
+.empty-state .empty-icon {
+    color: var(--ink-3);
+    opacity: 0.45;
+    display: flex;
+}
+
+.empty-state p { font-size: 13px; }
+
+/* === 找人结果（搜索用户） === */
 .message-show .search-result-item {
-    display: flex; align-items: center;
-    padding: 12px 16px; background: var(--bg-white);
-    border-radius: var(--radius-md); margin-bottom: 10px;
-    box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    margin-bottom: 8px;
 }
 
-.search-result-item .result-name { flex: 1; font-size: 15px; font-weight: 500; color: var(--text-primary); }
+.search-result-item .result-name {
+    flex: 1; min-width: 0;
+    font-size: 14px; font-weight: 500; color: var(--ink);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
 
 .search-result-item .result-reason {
-    width: 180px; height: 34px; padding: 0 10px;
-    background: var(--bg-input); border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm); font-size: 13px; margin: 0 12px;
-    transition: var(--transition);
+    width: 160px; height: 30px; padding: 0 10px;
+    background: var(--surface);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-md);
+    font-size: 13px;
+    transition: border-color var(--t-fast), box-shadow var(--t-fast);
 }
 
-.search-result-item .result-reason:focus { border-color: var(--primary); background: var(--bg-white); }
+.search-result-item .result-reason:focus {
+    border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring);
+}
 
 .search-result-item .result-add-btn {
-    width: 34px; height: 34px; background: var(--primary); color: white;
-    border-radius: var(--radius-full);
+    width: 30px; height: 30px; flex-shrink: 0;
+    background: var(--accent); color: #fff;
+    border-radius: var(--r-md);
     display: flex; align-items: center; justify-content: center;
-    font-size: 18px; transition: var(--transition);
+    transition: background-color var(--t-fast);
 }
 
-.search-result-item .result-add-btn:hover { background: var(--primary-dark); transform: scale(1.05); }
+.search-result-item .result-add-btn:hover { background: var(--accent-hover); }
 
-.empty-state {
-    flex: 1; display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    color: var(--text-placeholder);
+.search-result-item .result-add-btn .icon { width: 16px; height: 16px; }
+
+/* 请求已发出的状态：变灰 + 不可点。
+   client.js 的 sendAddFriend 成功后加 .done，同时把按钮 disabled。 */
+.search-result-item .result-add-btn.done,
+.search-result-item .result-add-btn.done:hover {
+    background: var(--canvas-3); color: var(--ink-3);
+    cursor: default;
 }
 
-.empty-state .empty-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.3; }
-.empty-state p { font-size: 14px; }
-
-@media (max-width: 1200px) {
-    .main { width: 95%; height: 90vh; }
+/* === 聊天记录搜索结果 === */
+.message-show .search-msg-item {
+    flex-shrink: 0;
+    padding: 10px 12px; margin-bottom: 8px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    cursor: pointer;
+    transition: border-color var(--t-fast), background-color var(--t-fast);
 }
 
+.message-show .search-msg-item:hover {
+    border-color: var(--line-2);
+    background: var(--canvas-4);
+}
+
+.search-msg-item .search-msg-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    margin-bottom: 5px;
+    font-size: 12px; color: var(--ink-2);
+}
+
+.search-msg-item .search-msg-session {
+    font-weight: 500;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.search-msg-item .search-msg-time {
+    flex-shrink: 0;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+}
+
+.search-msg-item .search-msg-body {
+    font-size: 13.5px; color: var(--ink); line-height: 1.6;
+    word-break: break-word;
+}
+
+.search-msg-item .search-msg-from { color: var(--ink-2); font-size: 13px; }
+
+.search-msg-item mark {
+    background: #fdf0c8;
+    color: inherit;
+    padding: 0 2px;
+    border-radius: var(--r-xs);
+    box-decoration-break: clone;
+}
+
+/* ============================================================
+   窄一点但仍放得下两栏（小笔记本 / 横屏平板）：只收窄侧栏
+   ============================================================ */
+@media (min-width: 769px) and (max-width: 1000px) {
+    .main > .left { width: 248px; }
+    .main > .right > .composer { padding: 10px 14px 14px; }
+    .main > .right > .message-show { padding: 16px 16px 8px; }
+}
+
+/* ============================================================
+   移动端（≤ 768px）：并排两栏 → 单栏 + 返回
+   ============================================================
+   为什么必须换布局，而不是"把侧栏再收窄一点"：
+   375px 的屏上，200px 的侧栏留给聊天区只有 175px，
+   气泡按 max-width:62% 算下来约 108px，一句话要折 5~6 行 —— 不是不好看，是不可用。
+
+   改法：不做响应式重排，而是把"列表"和"聊天"当成两个整屏视图叠在一起，
+   靠 .client-container 上的 .chat-open 类切换（类名由 client.js 的 setChatOpen 控制）：
+       列表视图  ←translateX(0)         聊天视图 → translateX(100%)
+   ============================================================ */
 @media (max-width: 768px) {
-    .main { width: 100%; height: 100%; border-radius: 0; }
-    .main > .left { width: 260px; }
+
+    /* --- 容器高度 ---
+       --app-h 由 client.js 的 initViewportFix 从 visualViewport.height 写进来，
+       iOS 弹键盘时它变小，容器跟着缩，输入框才不会被键盘盖住。
+       JS 没跑起来时退回 100dvh（地址栏伸缩也够用）。 */
+    .client-container {
+        height: var(--app-h, 100dvh);
+        position: relative;
+    }
+
+    /* --- 两个整屏视图 --- */
+    .main { position: relative; }
+
+    .main > .left {
+        width: 100%;
+        border-right: none;
+        transition: transform 240ms var(--ease);
+    }
+
+    .main > .right {
+        position: absolute;
+        inset: 0;
+        z-index: 10;
+        transform: translateX(100%);
+        transition: transform 240ms var(--ease);
+    }
+
+    /* 只是"拉开一点"做视差，真正盖住列表靠的是 .right 自己的不透明底 */
+    .client-container.chat-open > .main > .left { transform: translateX(-18%); }
+    .client-container.chat-open > .main > .right { transform: translateX(0); }
+
+    /* --- 标题栏：让出返回按钮的位置，高度收一档 --- */
+    .main > .right > .title {
+        height: 52px;
+        padding: 0 12px;
+        gap: 6px;
+    }
+
+    .main > .right > .title > .back-btn {
+        display: flex;
+        align-items: center; justify-content: center;
+        width: 36px; height: 36px;
+        margin-left: -8px;
+        border-radius: var(--r-md);
+        color: var(--ink-2);
+        flex-shrink: 0;
+        transition: background-color var(--t-fast);
+    }
+
+    .main > .right > .title > .back-btn:active { background: var(--canvas-2); }
+
+    /* 群聊的"邀请 / 退出群聊"在窄屏上收窄，别把会话名挤没 */
+    .title-actions .title-btn { height: 32px; padding: 0 10px; }
+
+    /* --- 列表：行更高、头像更大，手指点得准 --- */
+    .main > .left > .user-info { height: 60px; padding: 0 16px; }
+    .main > .left > .search { padding: 0 14px 12px; }
+    .main > .left > .search > input { height: 38px; padding: 0 12px; }
+    .main > .left > .search > button { width: 38px; height: 38px; }
+    .main > .left > .tab { padding: 0 12px 10px; }
+    .main > .left > .tab > div { height: 36px; }
+
+    .main > .left .list { padding: 0 10px calc(16px + env(safe-area-inset-bottom, 0px)); }
+    .main > .left .list > li { padding: 10px; gap: 12px; min-height: 56px; }
+    .main > .left .list > li .item-avatar { width: 40px; height: 40px; font-size: 15px; }
+    .main > .left .list > li .item-content h3,
+    .main > .left .list > li .item-content h4 { font-size: 14.5px; }
+    .main > .left .list > li .item-content p { font-size: 12.5px; }
+
+    .main > .left .friend-toolbar .toolbar-btn { height: 32px; padding: 0 12px; }
+    .main > .left > .friend-panel > .request-section > .request-list > li { padding: 10px 8px; }
+    .main > .left .friend-request-actions button { height: 32px; padding: 0 16px; font-size: 12.5px; }
+
+    /* 建群 / 邀请操作条：贴底，要避开 iPhone 的 Home 条 */
+    .main > .left > .friend-panel > .group-bar {
+        padding: 12px 14px calc(12px + env(safe-area-inset-bottom, 0px));
+    }
+    .main > .left > .friend-panel > .group-bar .group-name-input { height: 38px; }
+    .main > .left > .friend-panel > .group-bar button { height: 36px; padding: 0 16px; }
+
+    /* --- 消息区 --- */
+    .main > .right > .message-show { padding: 14px 12px 6px; }
+    .main > .right > .message-show > .message > .bubble { max-width: min(76%, 560px); }
+    .main > .right > .message-show > .message > .bubble .msg-content { font-size: 15px; }
+    .main > .right > .message-show > .message > .bubble .msg-image { max-width: min(240px, 62vw); }
+    .msg-avatar { width: 34px; height: 34px; margin: 0 8px; }
+    .message-revoked { max-width: 84%; }
+
+    /* --- 输入区：躲开虚拟键盘和 Home 条 --- */
+    .main > .right > .composer { padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px)); }
+    .main > .right > .composer > .message-input > textarea { height: 48px; }
+    .main > .right > .composer > .ctrl > .hint { display: none; }
+    .main > .right > .composer > .ctrl-tools .tool-btn { width: 36px; height: 36px; }
+    .main > .right > .composer > .ctrl > #send-btn { height: 36px; padding: 0 18px; font-size: 14px; }
+
+    /* 表情面板在窄屏上贴着左右边，别溢出 */
+    .main > .right > .composer > .message-input > .emoji-panel {
+        width: min(312px, calc(100vw - 24px));
+        max-height: 38vh;
+    }
+    .emoji-panel .emoji-item { width: 38px; height: 38px; font-size: 22px; }
+
+    /* --- 找人结果：验证消息输入框换到第二行独占一行，别把整行挤爆 --- */
+    .message-show .search-result-item { flex-wrap: wrap; gap: 8px; padding: 12px; }
+    .search-result-item .result-name { flex: 1 1 auto; }
+    .search-result-item .result-add-btn { width: 38px; height: 38px; }
+    .search-result-item .result-reason {
+        order: 5;
+        flex: 1 1 100%;
+        width: auto;
+        height: 38px;
+    }
+
+    /* --- 聊天记录搜索结果 --- */
+    .message-show .search-msg-item { padding: 12px; }
+    .search-msg-item .search-msg-body { font-size: 14px; }
+}
+
+/* ============================================================
+   触屏设备的额外规则（按输入方式判断，不依赖宽度 —— 平板也算）
+   ============================================================ */
+@media (hover: none) and (pointer: coarse) {
+
+    /* 🔴 输入控件字号必须 ≥ 16px。
+       iOS Safari 在 focus 到 font-size < 16px 的输入框时会"整页放大"，
+       而且失焦后不会自动缩回 —— 页面从此歪着，用户还以为是自己误触了缩放。
+       这不是精致度问题，是可用性问题。 */
+    .main > .left > .search > input,
+    .main > .right > .composer > .message-input > textarea,
+    .main > .left > .friend-panel > .group-bar .group-name-input,
+    .message-show .search-result-item .result-reason { font-size: 16px; }
+
+    /* 触屏没有 hover，撤回改成长按气泡（client.js 的 initLongPressRevoke）。
+       长按期间要拦掉系统的"文字选择 / 放大镜"，否则两套手势会打架。
+       ⚠️ 代价：手机上不能再长按复制消息文本。跟微信的行为一致；
+       以后要加"复制"，把它做成和"撤回"同一排的操作按钮即可。 */
+    .main > .right > .message-show > .message .msg-content,
+    .main > .right > .message-show > .message .msg-time,
+    .main > .right > .message-show > .message .msg-image {
+        -webkit-touch-callout: none;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    /* 触屏上不需要"鼠标悬停才出现"的过渡。
+       ⚠️ 但触屏有个坑：点过的元素会"粘"上 :hover 状态不放，
+       所以必须把"选中态"再声明一次、并让它优先（多一个 .selected，优先级更高），
+       否则点过的那一项会从选中的灰底变回透明。 */
+    .main > .left .list > li:hover { background: transparent; }
+    .main > .left .list > li.selected:hover { background: var(--canvas-3); }
+
+    /* 触摸设备点一下会闪一块系统高亮（灰/蓝），颜色不可控，跟整套中性色打架。
+       关掉它，改用我们自己的 :active —— 反馈更快，颜色也统一。 */
+    .main > .left .list > li,
+    .main > .left > .tab > div,
+    .main > .left > .search > button,
+    .main > .left .friend-toolbar .toolbar-btn,
+    button {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* touch-action: manipulation 去掉"双击缩放"带来的 ~300ms 点按延迟。
+       聊天界面里双击缩放基本都是误触，没有保留价值。 */
+    button,
+    .main > .left .list > li,
+    .main > .left > .tab > div {
+        touch-action: manipulation;
+    }
+
+    /* 手指按下立刻给反馈（hover 在触屏上不会触发，只能靠 :active） */
+    .main > .left .list > li:active { background: var(--canvas-3); }
+    .main > .left .tab > div:active { background: var(--canvas-3); }
 }

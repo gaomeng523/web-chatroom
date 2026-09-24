@@ -1,52 +1,100 @@
 /* ========================================
-   网页聊天室 - 公共样式
-   设计风格: 现代简约 (参考微信/Telegram)
+   网页聊天室 - 公共样式 / 设计令牌
+   ========================================
+   基调：像桌面客户端，不像"落地页"。
+   几条刻意的自我约束（这几条正是"一眼 AI"的来源，别再加回来）：
+     · 不用 135° 双色渐变（尤其是紫蓝那套）
+     · 按钮不用渐变、不用带颜色的发光阴影
+     · hover 不缩放、不上浮，只改底色和描边
+     · 分隔靠 1px 细线和色阶差，不靠重阴影
+     · 图标一律线性 SVG，不用 emoji
+   色阶只有一套灰 + 一个深松绿强调色，别再引入第五种蓝紫。
    ======================================== */
 
 :root {
-    --primary: #07c160;
-    --primary-dark: #06ad56;
-    --primary-light: #e8f8ee;
-    --danger: #fa5151;
-    --warning: #ffc300;
-    --info: #10aeff;
+    /* ---- 中性色阶 ---- */
+    --ink: #1b1f24;         /* 一级文字 */
+    --ink-2: #5a6470;       /* 二级文字 */
+    --ink-3: #8a94a0;       /* 三级文字 / 占位符 */
 
-    --bg-dark: #1a1a2e;
-    --bg-sidebar: #1e1e32;
-    --bg-sidebar-hover: #2a2a42;
-    --bg-sidebar-active: #32324a;
-    --bg-main: #f5f5f5;
-    --bg-chat: #eef1f5;
-    --bg-white: #ffffff;
-    --bg-input: #f0f0f0;
+    --line: #e6e8eb;        /* 常规分隔线 */
+    --line-2: #d9dde1;      /* 控件描边 */
 
-    --text-primary: #191919;
-    --text-secondary: #666666;
-    --text-placeholder: #999999;
+    --surface: #ffffff;     /* 卡片 / 面板 */
+    --canvas: #f6f7f8;      /* 页面底 / 侧栏 */
+    --canvas-2: #eef0f2;    /* 侧栏 hover */
+    --canvas-3: #e3e7ea;    /* 侧栏选中 */
+    --canvas-4: #fbfbfc;    /* 聊天区（比白再浅一档，让气泡"浮"出来） */
+
+    /* ---- 强调色：深松绿 ----
+       刻意不用微信那个高饱和 #07c160 —— 那个色一出现，"模板感"立刻就有了。
+       这里降饱和、压亮度，配浅色底 + 深色字，更接近真实产品里的"自己发的消息"。 */
+    --accent: #1d6f5c;
+    --accent-hover: #175a4a;
+    --accent-press: #124a3d;
+    --accent-soft: #e9f2ee;
+    --accent-line: #c6ddd5;
+    --accent-ink: #14392e;
+    --accent-ring: rgba(29, 111, 92, 0.16);
+
+    --danger: #c0492f;
+    --danger-soft: #fbeeea;
+    --danger-line: #f0d3cb;
+    --warning: #a9721a;
+    --warning-soft: #fdf4e3;
+
+    /* ---- 兼容旧变量名 ----
+       登录页 / 注册页的历史样式引用了这些名字，统一指到新色阶上，
+       免得一边改了、另一边还是紫蓝色。 */
+    --primary: var(--accent);
+    --primary-dark: var(--accent-hover);
+    --primary-light: var(--accent-soft);
+    --info: var(--accent);
+    --text-primary: var(--ink);
+    --text-secondary: var(--ink-2);
+    --text-placeholder: var(--ink-3);
     --text-white: #ffffff;
-    --text-sidebar: #b0b0c8;
-    --text-sidebar-active: #ffffff;
+    --bg-white: var(--surface);
+    --bg-main: var(--canvas);
+    --bg-chat: var(--canvas-4);
+    --bg-input: var(--canvas);
+    --border-color: var(--line);
+    --border-light: var(--line);
+    --bg-dark: #1b1f24;
+    --bg-sidebar: var(--canvas);
+    --bg-sidebar-hover: var(--canvas-2);
+    --bg-sidebar-active: var(--canvas-3);
+    --text-sidebar: var(--ink-2);
+    --text-sidebar-active: var(--ink);
 
-    --border-color: #e8e8e8;
-    --border-light: #f0f0f0;
-
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.12);
-    --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.15);
-
-    --radius-sm: 6px;
-    --radius-md: 10px;
-    --radius-lg: 16px;
-    --radius-xl: 20px;
+    /* ---- 圆角 ---- */
+    --r-xs: 3px;
+    --r-sm: 5px;
+    --r-md: 8px;
+    --r-lg: 10px;
+    --r-xl: 14px;
+    --radius-sm: var(--r-sm);
+    --radius-md: var(--r-md);
+    --radius-lg: var(--r-lg);
+    --radius-xl: var(--r-xl);
     --radius-full: 50%;
 
-    --transition: all 0.2s ease;
-    --transition-slow: all 0.3s ease;
+    /* ---- 阴影：只用"贴着"的极浅阴影，不用大范围投影 ---- */
+    --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+    --shadow-md: 0 2px 6px rgba(16, 24, 40, 0.07), 0 1px 2px rgba(16, 24, 40, 0.05);
+    --shadow-lg: 0 8px 24px rgba(16, 24, 40, 0.10);
+    --shadow-xl: 0 16px 40px rgba(16, 24, 40, 0.12);
 
+    /* ---- 动效 ---- */
+    --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+    --t-fast: 120ms cubic-bezier(0.2, 0.7, 0.3, 1);
+    --t: 180ms cubic-bezier(0.2, 0.7, 0.3, 1);
+
+    /* ---- 字体 ----
+       中文优先 PingFang / 微软雅黑，西文走系统 UI 字体。 */
     --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
-        'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial,
-        sans-serif;
+        'Hiragino Sans GB', 'Microsoft YaHei', 'Source Han Sans SC', 'Noto Sans CJK SC',
+        Roboto, Helvetica, Arial, sans-serif;
 }
 
 * {
@@ -59,86 +107,148 @@ html, body {
     height: 100%;
     font-family: var(--font-family);
     font-size: 14px;
-    color: var(--text-primary);
+    line-height: 1.5;
+    color: var(--ink);
+    background: var(--canvas);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    /* 横屏时 iOS 会自作主张放大字号，关掉，字号由我们说了算 */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+/* ---- 移动浏览器的高度 ----
+   手机地址栏会随滚动伸缩，`height:100%` / `100vh` 拿到的是"最大高度"，
+   底部输入框会被顶到屏幕外。dvh（dynamic viewport height）会跟着变化，才是对的高度。
+   不支持的浏览器继续用上面的 100% 兜底。 */
+@supports (height: 100dvh) {
+    html, body { height: 100dvh; }
 }
 
 a { text-decoration: none; color: inherit; }
 ul, ol { list-style: none; }
-button { cursor: pointer; font-family: inherit; border: none; outline: none; background: none; }
-input, textarea { font-family: inherit; outline: none; border: none; }
 
-::-webkit-scrollbar { width: 0; height: 0; }
-
-.nav {
-    width: 100%;
-    height: 56px;
-    background: linear-gradient(135deg, var(--bg-dark) 0%, #16213e 100%);
-    color: var(--text-white);
-    display: flex;
-    align-items: center;
-    padding: 0 24px;
-    font-size: 18px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    position: relative;
-    z-index: 100;
+button {
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+    border: none;
+    background: none;
 }
 
+input, textarea {
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+    outline: none;
+    border: none;
+    background: none;
+}
+
+textarea { resize: none; }
+
+/* ---- 滚动条：细、半透明、贴边 ----
+   原来是 width:0（完全藏起来），滚动区会显得"不知道能不能滚"。
+   真实客户端都有细滚动条。 */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background-color: rgba(27, 31, 36, 0.16);
+    border: 3px solid transparent;
+    background-clip: content-box;
+    border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover { background-color: rgba(27, 31, 36, 0.3); }
+::-webkit-scrollbar-corner { background: transparent; }
+
+/* ---- 线性图标 ----
+   HTML 里放一个 <svg class="sprite"> 收着所有 <symbol>，
+   用到的地方写 <svg class="icon"><use href="#i-xxx"/></svg>。
+   统一 fill:none + stroke:currentColor，颜色跟着文字走。 */
+.sprite { display: none; }
+
+.icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    display: block;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.icon-sm { width: 15px; height: 15px; stroke-width: 1.8; }
+.icon-lg { width: 44px; height: 44px; stroke-width: 1.2; }
+
+/* ---- 键盘可达性 ----
+   鼠标点不显示焦点框，键盘 Tab 过来必须有 —— 这是"像真产品"很便宜的一项。 */
+:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+}
+button:focus:not(:focus-visible),
+input:focus:not(:focus-visible),
+textarea:focus:not(:focus-visible) { outline: none; }
+
+/* ---- 顶部品牌条（登录 / 注册页用） ---- */
+.nav {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 22px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--ink);
+}
+
+.nav .brand-mark {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    background: var(--accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav .brand-mark .icon { width: 15px; height: 15px; stroke-width: 1.9; }
+
+/* ---- 表单容器（登录 / 注册页） ---- */
 .container {
     height: calc(100% - 56px);
-    width: 100%;
     display: flex;
-    justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    position: relative;
-    overflow: hidden;
-}
-
-.container::before {
-    content: '';
-    position: absolute;
-    width: 400px;
-    height: 400px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 50%;
-    top: -100px;
-    right: -100px;
-}
-
-.container::after {
-    content: '';
-    position: absolute;
-    width: 300px;
-    height: 300px;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 50%;
-    bottom: -80px;
-    left: -80px;
+    justify-content: center;
+    padding: 24px;
+    background: var(--canvas);
 }
 
 .input-field {
     width: 100%;
-    height: 48px;
-    padding: 0 16px;
-    background: var(--bg-input);
-    border: 2px solid transparent;
-    border-radius: var(--radius-md);
-    font-size: 15px;
-    color: var(--text-primary);
-    transition: var(--transition);
+    height: 44px;
+    padding: 0 13px;
+    background: var(--surface);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-md);
+    font-size: 14px;
+    color: var(--ink);
+    transition: border-color var(--t-fast), box-shadow var(--t-fast);
 }
 
+.input-field::placeholder { color: var(--ink-3); }
+.input-field:hover { border-color: #c6ccd2; }
 .input-field:focus {
-    background: var(--bg-white);
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(7, 193, 96, 0.1);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-ring);
 }
-
-.input-field::placeholder { color: var(--text-placeholder); }
 
 .hide { display: none !important; }
-.text-ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

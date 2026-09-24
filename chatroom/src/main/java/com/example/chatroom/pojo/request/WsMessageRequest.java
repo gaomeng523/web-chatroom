@@ -17,4 +17,10 @@ public class WsMessageRequest {
     private Integer sessionId;
 
     private String content;
+
+    /**
+     * 消息类型：1 文本 / 2 图片。不传按文本处理（老前端兼容）。
+     * type=2 时 content 必须是刚通过 POST /message/image 拿到的 /upload/... 路径。
+     */
+    private Integer contentType;
 }
